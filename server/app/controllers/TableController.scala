@@ -20,8 +20,9 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
     Ok(views.html.version5Main())
   }*/
 
+  private val model = new WorkoutDatabaseModel(db)
   // JSON serialization for our case classes
-   implicit val userDataRead = Json.reads[UserData]
+  implicit val userDataRead = Json.reads[UserData]
   implicit val usersRowRead = Json.reads[UsersRow]
   implicit val usersRowWrite = Json.writes[UsersRow]
   implicit val workoutsRowReads = Json.reads[WorkoutsRow]
