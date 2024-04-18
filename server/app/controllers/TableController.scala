@@ -26,6 +26,21 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
     )
   }
 
+
+  /*def createUser(username: String, password: String): Future[Option[Int]] = {
+    val matches = db.run(Users.filter(userRow => userRow.username === username).result)
+    matches.flatMap { userRows =>
+      if (userRows.isEmpty) {
+        db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt())))
+          .flatMap { addCount => 
+            if (addCount > 0) db.run(Users.filter(userRow => userRow.username === username).result)
+              .map(_.headOption.map(_.id))
+            else Future.successful(None)
+          }
+      } else Future.successful(None)
+    }
+  }*/
+
   // API endpoint for user login
   def loginUser(username: String, password: String) = Action.async {
     val query = Users.filter(u => u.username === username && u.password === password).result.headOption
