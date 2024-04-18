@@ -2,11 +2,11 @@ package models
 
 import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}
-import models.Tables._
+//import models.Tables._
 import org.mindrot.jbcrypt.BCrypt
 
 class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
-
+/*
   // Validates user credentials and returns user ID if successful
   def validateUser(username: String, password: String): Future[Option[Int]] = {
     val query = Users.filter(_.username === username).result.headOption
@@ -31,10 +31,10 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   }
 
   // Retrieves all workouts matching specific criteria
-  def getWorkouts(): Future[Seq[Workouts]] = {
+  //def getWorkouts(): Future[Seq[Workouts]] = {
     //val query = Workouts.filter(w => w.userId === userId && w.workoutType === workoutType).result
-    db.run(Workouts.result)
-  }
+    //db.run(Workouts.result)
+  //}
 
   // Adds a workout for a specific user
   def addWorkout(workout: WorkoutsRow): Future[Int] = {
@@ -99,4 +99,7 @@ class TaskListDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     db.run(Items += ItemsRow(-1, userid, task))
   }
   
-}*/
+}
+*/
+*/
+}

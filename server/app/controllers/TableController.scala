@@ -4,13 +4,15 @@ import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
 import slick.jdbc.PostgresProfile.api._
-import models.Tables._
+//import models.Tables._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.mindrot.jbcrypt.BCrypt
+import models._
 
 @Singleton
 class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: play.api.db.slick.DatabaseConfigProvider) extends AbstractController(cc) {
+  /*
   val dbConfig = dbConfigProvider.get[slick.jdbc.JdbcProfile]
 
   import dbConfig._
@@ -208,3 +210,5 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
     Ok(Json.toJson(true)).withSession(request.session - "username")
   }
 }*/
+*/
+}
