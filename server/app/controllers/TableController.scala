@@ -16,34 +16,67 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
   import dbConfig._
   import profile.api._
 
-  // JSON serialization for our case classes
-  implicit val usersRowFormat = Json.format[UsersRow]
-  implicit val workoutsRowFormat = Json.format[WorkoutsRow]
+  /*def load = Action { implicit request =>
+    Ok(views.html.version5Main())
+  }*/
 
-   // API endpoint for user login
-  def validateUser(username: String, password: String): Future[Option[Int]] = {
-    val matches = db.run(Users.filter(userRow => userRow.username === username).result)
-    matches.map(userRows => userRows.headOption.flatMap {
-      userRow => if (BCrypt.checkpw(password, userRow.password)) Some(userRow.id) else None
-    })
+  // JSON serialization for our case classes
+   implicit val userDataRead = Json.reads[UserData]
+  implicit val usersRowRead = Json.reads[UsersRow]
+  implicit val usersRowWrite = Json.writes[UsersRow]
+  implicit val workoutsRowReads = Json.reads[WorkoutsRow]
+
+  def withJsonBody[A](f: A => Future[Result])(implicit request: Request[AnyContent], reads: Reads[A]): Future[Result] = {
+    request.body.asJson.map { body =>
+      Json.fromJson[A](body) match {
+        case JsSuccess(a, path) => f(a)
+        case e @ JsError(_) => Future.successful(Redirect(routes.TaskList3.load))
+      }
+    }.getOrElse(Future.successful(Redirect(routes.TaskList3.load)))
   }
 
-  // API endpoint for user registration
-  def createUser(username: String, password: String): Future[Option[Int]] = {
-    val matches = db.run(Users.filter(userRow => userRow.username === username).result)
-    matches.flatMap { userRows =>
-      if (userRows.isEmpty) {
-        db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt())))
-          .flatMap { addCount => 
-            if (addCount > 0) db.run(Users.filter(userRow => userRow.username === username).result)
-              .map(_.headOption.map(_.id))
-            else Future.successful(None)
-          }
-      } else Future.successful(None)
+  def withSessionUsername(f: String => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+    request.session.get("username").map(f).getOrElse(Future.successful(Ok(Json.toJson(Seq.empty[String]))))
+  }
+
+  def withSessionUserid(f: Int => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+    request.session.get("userid").map(userid => f(userid.toInt)).getOrElse(Future.successful(Ok(Json.toJson(Seq.empty[String]))))
+  }
+   // API endpoint for user login
+  def validate = Action.async { implicit request =>
+    withJsonBody[UserData] { ud =>
+      model.validateUser(ud.username, ud.password).map { ouserId =>
+        ouserId match {
+          case Some(userid) =>
+            Ok(Json.toJson(true))
+              .withSession("username" -> ud.username, "userid" -> userid.toString, "csrfToken" -> play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))
+          case None =>
+            Ok(Json.toJson(false))
+        }
+      }
     }
   }
 
- 
+  // API endpoint for user registration
+  def createUser = Action.async { implicit request =>
+    withJsonBody[UserData] { ud => model.createUser(ud.username, ud.password).map { ouserId =>   
+      ouserId match {
+        case Some(userid) =>
+          Ok(Json.toJson(true))
+            .withSession("username" -> ud.username, "userid" -> userid.toString, "csrfToken" -> play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))
+        case None =>
+          Ok(Json.toJson(false))
+      }
+    } }
+  }
+
+  def workoutList = Action.async { implicit request =>
+      model.getTasks().map(workouts => Ok(Json.toJson(workouts)))
+  }
+
+ def logout = Action { implicit request =>
+    Ok(Json.toJson(true)).withSession(request.session - "username")
+  }
  /* def loginUser(username: String, password: String) = Action.async {
     val query = Users.filter(u => u.username === username && u.password === password).result.headOption
     db.run(query).map {
@@ -58,7 +91,7 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
     db.run(query).map(workouts => Ok(Json.toJson(workouts)))
   }*/
 
-  def getAllWorkouts(): Future[Seq[Workouts]] = {
+  /*def getAllWorkouts(): Future[Seq[Workouts]] = {
     db.run(
       (for {
         workout <- Workouts 
@@ -74,7 +107,7 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
       errors => Future.successful(BadRequest("Invalid input")),
       input => db.run(query(input)).map(result => Ok(Json.toJson(result)))
     )
-  }
+  }*/
 
 }
 

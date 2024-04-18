@@ -31,9 +31,9 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   }
 
   // Retrieves all workouts matching specific criteria
-  def getWorkouts(userId: Int, workoutType: String): Future[Seq[WorkoutsRow]] = {
-    val query = Workouts.filter(w => w.userId === userId && w.workoutType === workoutType).result
-    db.run(query)
+  def getWorkouts(): Future[Seq[Workouts]] = {
+    //val query = Workouts.filter(w => w.userId === userId && w.workoutType === workoutType).result
+    db.run(Workouts.result)
   }
 
   // Adds a workout for a specific user
