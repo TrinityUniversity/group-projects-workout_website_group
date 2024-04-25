@@ -2,11 +2,13 @@ package models
 
 import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}
-//import models.Tables._
+import models.Tables._
 import org.mindrot.jbcrypt.BCrypt
+import play.api.libs.json.Json
+
 
 class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
-/*
+  
   // Validates user credentials and returns user ID if successful
   def validateUser(username: String, password: String): Future[Option[Int]] = {
     val query = Users.filter(_.username === username).result.headOption
@@ -16,25 +18,37 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
   }
 
-  // Creates a new user with a hashed password, returns user ID if creation is successful
-  def createUser(username: String, password: String): Future[Option[Int]] = {
-    val checkExists = Users.filter(_.username === username).exists.result
-    db.run(checkExists).flatMap { exists =>
-      if (!exists) {
-        val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
-        val action = (Users returning Users.map(_.userId)) += UsersRow(-1, username, hashedPassword)
-        db.run(action).map(Some(_))
-      } else {
-        Future.successful(None)
-      }
-    }
-  }
+  // Method to update user favorites
+def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
+  val favoritesString = Json.toJson(favoriteWorkouts).toString()  // Convert List[Int] to JSON string
+  val updateAction = Users.filter(_.userId === userId).map(u => u.favorites).update(Some(favoritesString))
+  db.run(updateAction).map(_ == 1)
+}
 
-  // Retrieves all workouts matching specific criteria
-  //def getWorkouts(): Future[Seq[Workouts]] = {
-    //val query = Workouts.filter(w => w.userId === userId && w.workoutType === workoutType).result
-    //db.run(Workouts.result)
-  //}
+
+
+  // Creates a new user with a hashed password, returns user ID if creation is successful
+def createUser(username: String, password: String): Future[Either[String, Int]] = {
+  val checkExists = Users.filter(_.username === username).exists.result
+  db.run(checkExists).flatMap { exists =>
+    if (!exists) {
+      val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+      val action = (Users returning Users.map(_.userId)) += UsersRow(-1, username, None, hashedPassword)
+      db.run(action).map(id => Right(id))  
+    } else {
+      Future.successful(Left("Username already exists"))  
+    }
+  }.recover {
+    case ex: Exception => Left(s"An error occurred: ${ex.getMessage}")
+  }
+}
+
+
+
+def getWorkouts(): Future[Seq[WorkoutsRow]] = {
+  db.run(Workouts.result)
+}
+
 
   // Adds a workout for a specific user
   def addWorkout(workout: WorkoutsRow): Future[Int] = {
@@ -49,57 +63,3 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   }
 }
 
-/*
-class TaskListDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
-  def validateUser(username: String, password: String): Future[Option[Int]] = {
-    val matches = db.run(Users.filter(userRow => userRow.username === username).result)
-    matches.map(userRows => userRows.headOption.flatMap {
-      userRow => if (BCrypt.checkpw(password, userRow.password)) Some(userRow.id) else None
-    })
-  }
-
-  def getUserId(username: String): Future[Seq[Int]] = {
-    println("getting tasks")
-    db.run(
-      (for {
-        user <- Users if user.username === username
-      } yield {
-        user
-      }).result
-    ).map(users => users.map(user => user.id))
-  }
-  
-  def createUser(username: String, password: String): Future[Option[Int]] = {
-    val matches = db.run(Users.filter(userRow => userRow.username === username).result)
-    matches.flatMap { userRows =>
-      if (userRows.isEmpty) {
-        db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt())))
-          .flatMap { addCount => 
-            if (addCount > 0) db.run(Users.filter(userRow => userRow.username === username).result)
-              .map(_.headOption.map(_.id))
-            else Future.successful(None)
-          }
-      } else Future.successful(None)
-    }
-  }
-  
-  def getTasks(username: String): Future[Seq[TaskItem]] = {
-    println("getting tasks")
-    db.run(
-      (for {
-        user <- Users if user.username === username
-        item <- Items if item.userId === user.id
-      } yield {
-        item
-      }).result
-    ).map(items => items.map(item => TaskItem(item.itemId, item.text)))
-  }
-  
-  def addTask(userid: Int, task: String): Future[Int] = {
-    db.run(Items += ItemsRow(-1, userid, task))
-  }
-  
-}
-*/
-*/
-}

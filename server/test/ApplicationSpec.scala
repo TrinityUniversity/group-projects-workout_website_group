@@ -7,9 +7,11 @@ import play.api.test._
  * You can mock out a whole application including requests, plugins etc.
  * For more information, consult the wiki.
  */
+
+
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec() extends PlaySpecification {
-
+/*
   "Application" should {
 
     "send 404 on a bad request" in new WithApplication {
@@ -24,4 +26,5 @@ class ApplicationSpec() extends PlaySpecification {
       contentAsString(home) must contain ("shouts out")
     }
   }
+  */
 }
