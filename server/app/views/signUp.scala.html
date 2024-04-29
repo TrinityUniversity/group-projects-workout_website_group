@@ -17,14 +17,6 @@
             <h2>Create Profile</h2>
             <form id="login" #userlogin = "ngForm" (ngSubmit) = "checkLogin(userlogin.value)">
                 <br>
-                <label class="text-font, login-text"><b>Enter First Name</b>
-                </label>
-                    <input type="text" name="first" id="First" placeholder="First Name" ngModel>
-                <br><br>
-                <label class="text-font, login-text"><b>Enter Last Name</b>
-                </label>
-                <input type="text" name="last" id="Last" placeholder="Last Name" ngModel>
-                <br><br>
                 <label class ="text-font, login-text"><b>Enter Username</b>
                 </label>
                 <input type="text" name="username" id="Uname" placeholder="Username" ngModel>
@@ -42,7 +34,7 @@
                 </div>
                 <br><br>
                 <div class = "button"> 
-                    <input type="submit" name="log" id="log" value="Back">
+                    <a href="@routes.WorkoutPage.login">Back</a>
                 </div>
                 <br><br>
             </form>
