@@ -117,3 +117,11 @@ section {
   .top-left {
     position: absolute;
   }
+
+  .square {
+    height: 80px;
+    width: 80px;
+    font-size: 50px;
+    text-align: center;
+    background-color: #f896f2;
+  }
