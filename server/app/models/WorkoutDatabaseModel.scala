@@ -7,9 +7,9 @@ import org.mindrot.jbcrypt.BCrypt
 import play.api.libs.json.Json
 
 
+
 class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   
-  // Validates user credentials and returns user ID if successful
   def validateUser(username: String, password: String): Future[Option[Int]] = {
     val query = Users.filter(_.username === username).result.headOption
     db.run(query).map {
@@ -20,29 +20,31 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
   // Method to update user favorites
 def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
-  val favoritesString = Json.toJson(favoriteWorkouts).toString()  // Convert List[Int] to JSON string
-  val updateAction = Users.filter(_.userId === userId).map(u => u.favorites).update(Some(favoritesString))
+  val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
+  val updateAction = sqlu"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
   db.run(updateAction).map(_ == 1)
 }
 
 
 
-  // Creates a new user with a hashed password, returns user ID if creation is successful
+
+
+
 def createUser(username: String, password: String): Future[Either[String, Int]] = {
   val checkExists = Users.filter(_.username === username).exists.result
   db.run(checkExists).flatMap { exists =>
     if (!exists) {
       val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
-      val action = (Users returning Users.map(_.userId)) += UsersRow(-1, username, None, hashedPassword)
-      db.run(action).map(id => Right(id))  
+      val emptyIntArray = "{}"  
+      val action = sql"INSERT INTO users (username, favorites, password) VALUES ($username, $emptyIntArray::integer[], $hashedPassword) RETURNING user_id".as[Int].head
+      db.run(action).map(id => Right(id))
     } else {
-      Future.successful(Left("Username already exists"))  
+      Future.successful(Left("Username already exists"))
     }
   }.recover {
     case ex: Exception => Left(s"An error occurred: ${ex.getMessage}")
   }
 }
-
 
 
 def getWorkouts(): Future[Seq[WorkoutsRow]] = {

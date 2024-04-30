@@ -3,12 +3,17 @@ package models
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
-case class UserData(username: String, favorites: Option[String] = None, password: String)
+case class UserData(username: String, favorites: Option[List[Int]] = None, password: String)
 case class WorkoutData(name: String, videoUrl: String, sweatLevel: Int, intensity: Int, workLength: Int, workoutType: String, likes: Int, views: Int)
 
 object ReadsAndWrites {
   // Existing serializers
-  implicit val userDataFormat: Format[UserData] = Json.format[UserData]
+  implicit val userDataFormat: Format[UserData] = (
+  (__ \ "username").format[String] and
+  (__ \ "favorites").formatNullable[List[Int]] and
+  (__ \ "password").format[String]
+  )(UserData.apply, unlift(UserData.unapply))
+
   implicit val workoutDataFormat: Format[WorkoutData] = Json.format[WorkoutData]
 
   // Serializer for WorkoutsRow

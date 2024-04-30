@@ -11,6 +11,7 @@ POST       /createUser                   controllers.WorkoutController.createUse
 GET        /logout                       controllers.WorkoutController.logout
 
 # Workout Management
+GET        /test                         controllers.WorkoutController.test
 GET        /workouts                     controllers.WorkoutController.viewWorkouts
 POST       /addWorkout                   controllers.WorkoutController.addWorkout
 POST       /updateWorkout                controllers.WorkoutController.updateWorkout

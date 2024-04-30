@@ -28,6 +28,7 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
 }
 
 
+
 def withSessionUserid(f: Int => Future[Result])(implicit request: Request[_]): Future[Result] = {
   request.session.get("userid").map(userid => f(userid.toInt))
     .getOrElse(Future.successful(BadRequest("User not found")))
@@ -108,16 +109,22 @@ def updateFavorites = Action.async(parse.json) { implicit request =>
 
   // Create a new user
 def createUser = Action.async(parse.json) { implicit request: Request[JsValue] =>
+  println(s"Received request to create user: ${request.body}")
   withSessionUserid { userId =>
     withJsonBody[UserData] { ud =>
+      println(s"Parsed UserData: $ud")
       model.createUser(ud.username, ud.password).map {
-        case Right(userid) => Ok(Json.toJson(true))
-          .withSession("username" -> ud.username, "userid" -> userid.toString)
-        case Left(error) => BadRequest(Json.obj("error" -> error))
+        case Right(userid) =>
+          println(s"User creation successful: $userid")
+          Ok(Json.toJson(true)).withSession("username" -> ud.username, "userid" -> userid.toString)
+        case Left(error) =>
+          println(s"User creation failed: $error")
+          BadRequest(Json.obj("error" -> error))
       }
     }
   }
 }
+
 
   // Endpoint for user logout
   def logout = Action { implicit request =>

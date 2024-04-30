@@ -1,83 +1,78 @@
 import org.junit.runner._
 import org.specs2.runner._
 import play.api.test._
-import play.api.db.Database
-import play.api.db.Databases
+import scala.concurrent.ExecutionContext
 import models.WorkoutDatabaseModel
-import org.scalatestplus.play.PlaySpec
-
-
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-
+import slick.jdbc.JdbcBackend.Database
+import models.Tables._
 
 @RunWith(classOf[JUnitRunner])
-class DatabaseTest() extends PlaySpecification {
-  import models.WorkoutDatabaseModel
+class DatabaseTest extends PlaySpecification {
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-    
-
-def withMyDatabase[T](block: Database => T) = {
-  Databases.withDatabase(
-  driver = "org.postgresql.Driver",
-  url = "jdbc:postgresql://localhost/workoutapp?user=tgreen&password=password",
-  name = "mydatabase",
-  config = Map(
-    "username" -> "tgreen",
-    "password" -> "password"
+  def withMySlickDatabase[T](block: Database => T): T = {
+    val database = Database.forURL(
+      url = "jdbc:postgresql://localhost/workoutapp",
+      user = "tgreen",
+      password = "password",
+      driver = "org.postgresql.Driver"
     )
-  )(block)
-}
-
-
-"WorkoutDatabseModel" should
-{
-    "create a new user" in {
-    import models.WorkoutDatabaseModel
-
-    // val isValid = WorkoutDatabaseModel.createUser("testuser", "1")
-    // isValid mustBe 1
-
-    withMyDatabase { database =>
-    val connection = database.getConnection()
-    
-    connection
-        .prepareStatement("select * from test where id = 10")
-        .executeQuery()
-        .next() must_== true
-        }
-    }
-
-    
-
-
-
-}
-
-
-
-
-
-
-
-    /*
-  "Application" should {
-
-    "send 404 on a bad request" in new WithApplication {
-      route(app, FakeRequest(GET, "/boum")) must beSome.which (status(_) == NOT_FOUND)
-    }
-
-    "render the index page" in new WithApplication {
-      val home = route(app, FakeRequest(GET, "/")).get
-
-      status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain ("shouts out")
+    try {
+      block(database)
+    } finally {
+      database.close()
     }
   }
-  */
-  
+
+  "WorkoutDatabaseModel" should {
+
+    "create a new user" in {
+      val username = "testuser"
+      val password = "password"
+      withMySlickDatabase { database =>
+        val model = new WorkoutDatabaseModel(database)
+        val result = model.createUser(username, password).map(_.isRight must beTrue)
+        await(result)
+      }
+    }
+
+    "retrieve workouts" in {
+      withMySlickDatabase { database =>
+        val model = new WorkoutDatabaseModel(database)
+        val result = model.getWorkouts().map(workouts => workouts must not be empty)
+        await(result)
+      }
+    }
+
+    "add a workout" in {
+      val workout = WorkoutsRow(0, "Yoga Session", "http://video.url", 3, 5, 30, "Yoga", 100, 150)
+      withMySlickDatabase { database =>
+        val model = new WorkoutDatabaseModel(database)
+        val result = model.addWorkout(workout).map(id => id must beGreaterThan(0))
+        await(result)
+      }
+    }
+
+    "update workout details" in {
+      val workoutId = 1  
+      val newLikes = 101
+      val newViews = 201
+      withMySlickDatabase { database =>
+        val model = new WorkoutDatabaseModel(database)
+        val result = model.updateWorkoutLikesViews(workoutId, newLikes, newViews).map(success => success must beTrue)
+        await(result)
+      }
+    }
+
+    "update user favorites" in {
+      val userId = 1  
+      val favorites = List(1, 2, 3)  
+      withMySlickDatabase { database =>
+        val model = new WorkoutDatabaseModel(database)
+        val result = model.updateUserFavorites(userId, favorites).map(success => success must beTrue)
+        await(result)
+      }
+    }
+
+  }
 }
