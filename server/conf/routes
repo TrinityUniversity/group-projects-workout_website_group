@@ -5,6 +5,15 @@
 # Home page
 GET        /                             controllers.Application.index
 
+# HTML
+GET         /home                        controllers.WorkoutPage.home
+GET         /login                       controllers.WorkoutPage.login
+GET         /myVideos                    controllers.WorkoutPage.myVideos
+GET         /profile                     controllers.WorkoutPage.profile
+GET         /search                      controllers.WorkoutPage.search
+GET         /signUp                      controllers.WorkoutPage.signUp
+GET         /video                       controllers.WorkoutPage.video
+
 # User Authentication and Management
 POST       /validate                     controllers.WorkoutController.validate
 POST       /createUser                   controllers.WorkoutController.createUser

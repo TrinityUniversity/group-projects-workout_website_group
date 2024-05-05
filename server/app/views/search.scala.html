@@ -1,10 +1,14 @@
+@* search Template File *@
+@()
+
+@main("search") {
 <head>
-    <link rel="stylesheet" type="text/css" href="../styles/main.css" />
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheets/main.css" />
 </head>
 
 <section class="hero is-primary is-bold is-fullheight">
     <div class="top-left">
-        <a class="button1" href="../login/Untitled-1.html">Log Out</a>
+        <a class="button1" href="@routes.WorkoutPage.login">Log Out</a>
     </div>
     <div class="hero-body">
         <div class="container has text-centered">
@@ -13,10 +17,10 @@
                 Workout Lab
             </h1>
             <ul>
-                <li><a class="active" href="../home/home.html"> HOME </a></li>
-                <li><a href=""> WORKOUT SEARCH </a></li>
-                <li><a href="../myvideos/myvideos.html"> MY WORKOUTS </a></li>
-                <li><a href="../profile/profile.html"> USER PROFILE </a></li>
+                <li><a href="@routes.WorkoutPage.home"> HOME </a></li>
+                <li><a class="active" href="@routes.WorkoutPage.search"> WORKOUT SEARCH </a></li>
+                <li><a href="@routes.WorkoutPage.myVideos"> MY WORKOUTS </a></li>
+                <li><a href="@routes.WorkoutPage.profile"> USER PROFILE </a></li>
             </ul>
         </div>
     </div>
@@ -24,9 +28,9 @@
         <h2>Search Workouts</h2>
         <input type="text" placeholder="Search..">
         <h3 class="shift-left">Top Videos</h3>
-        <img src="../resources/vids1.jpg" alt="videos" width="100%">
+        <img src="../../public/images/vids1.jpg" alt="videos" width="100%">
         <h3 class="shift-left">All Videos</h3>
-        <img src="../resources/vids2.jpg" alt="videos" width="100%">
+        <img src="../../public/images/vids2.jpg" alt="videos" width="100%">
         <br>
         <br>
     </div>
@@ -34,3 +38,5 @@
 
    
 </section>
+
+}

@@ -1,5 +1,10 @@
+@* signUp Template File *@
+@()
+
+@main("signUp") {
+
 <head>
-    <link rel="stylesheet" type="text/css" href="../styles/main.css" />
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheets/main.css" />
 </head>
 
 <section>
@@ -9,24 +14,27 @@
 
     <div class=login-box>
         <div class="login" style="color: rgb(0, 0, 0)">
+            <h2>Create Profile</h2>
             <form id="login" #userlogin = "ngForm" (ngSubmit) = "checkLogin(userlogin.value)">
                 <br>
-                <label class ="text-font, login-text"><b>Username
-                    </b>
+                <label class ="text-font, login-text"><b>Enter Username</b>
                 </label>
                 <input type="text" name="username" id="Uname" placeholder="Username" ngModel>
                 <br><br>
-                <label class="text-font, login-text"><b>Password
-                    </b>
+                <label class="text-font, login-text"><b>Enter Password</b>
                 </label>
                     <input type="Password" name="password" id="Pass" placeholder="Password" ngModel>
                 <br><br>
+                <label class="text-font, login-text"><b>Re-enter Password</b>
+                </label>
+                <input type="Password" name="password" id="Pass" placeholder="Password" ngModel>
+            <br><br>
                 <div class = "button"> 
-                    <a class="button" href="../home/home.html">LogIn</a>
+                    <input type="submit" name="log" id="log" value="Sign Up">
                 </div>
                 <br><br>
                 <div class = "button"> 
-                    <a class="button" href="../signup/signup.html">SignUp</a>
+                    <a href="@routes.WorkoutPage.login">Back</a>
                 </div>
                 <br><br>
             </form>
@@ -34,3 +42,4 @@
     </div>
 
 </section>
+}
