@@ -126,7 +126,7 @@ def getUsername = Action.async(parse.json) { implicit request =>
 
 
   // Create a new user
-def createUser = Action.async(parse.json) { implicit request: Request[JsValue] =>
+def createUser = Action.async { implicit request =>
   val username = request.body.asFormUrlEncoded.get("username").head
   val password = request.body.asFormUrlEncoded.get("password").head
 
