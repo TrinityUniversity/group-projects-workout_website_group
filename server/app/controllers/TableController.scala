@@ -7,6 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import models._
 import slick.jdbc.PostgresProfile.api._
+import play.api.data._
+import play.api.data.Forms._
 
 @Singleton
 class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: play.api.db.slick.DatabaseConfigProvider) extends AbstractController(cc) {
@@ -103,23 +105,24 @@ def getUsername = Action.async(parse.json) { implicit request =>
 }
 
   // Validate user credentials
-  def validate = Action.async(parse.json) { implicit request: Request[JsValue] =>
-    var postVals = request.body.asFormUrlEncoded
-    postVals = parsed.parseRaw(postVals).get.toString()
-    postVals.map { args => 
+  def validate = Action.async { implicit request =>
+        val username = request.body.asFormUrlEncoded.get("username").head
+        val password = request.body.asFormUrlEncoded.get("password").head
+        //print(request.body.asFormUrlEncoded.get("username"))
+        //Ok(views.html.home())
+        //val username = request.body \ "username"
+        //val password = request.body \ "password"
+       //Ok(views.html.home())
+    /*request.body.map { args => 
         val username = args("username").head
         val password = args("password").head
-    }
-  withSessionUserid { userId =>
-    withJsonBody[UserData] { ud =>
+    }*/
       model.validateUser(username, password).map {
         case Some(userid) => Ok(Json.toJson(true))
-          .withSession("username" -> username, "userid" -> userid.toString)
+          .withSession("username" -> username)
         case None => Ok(Json.toJson(false))
       }
-    }
   }
-}
 
 
   // Create a new user
