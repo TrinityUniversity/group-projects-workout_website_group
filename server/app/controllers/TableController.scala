@@ -127,21 +127,17 @@ def getUsername = Action.async(parse.json) { implicit request =>
 
   // Create a new user
 def createUser = Action.async(parse.json) { implicit request: Request[JsValue] =>
-  println(s"Received request to create user: ${request.body}")
-  withSessionUserid { userId =>
-    withJsonBody[UserData] { ud =>
-      println(s"Parsed UserData: $ud")
-      model.createUser(ud.username, ud.password).map {
+  val username = request.body.asFormUrlEncoded.get("username").head
+  val password = request.body.asFormUrlEncoded.get("password").head
+
+      model.createUser(username, password).map {
         case Right(userid) =>
-          println(s"User creation successful: $userid")
-          Ok(Json.toJson(true)).withSession("username" -> ud.username, "userid" -> userid.toString)
+           Ok(views.html.home(username)).withSession("username" ->username)
         case Left(error) =>
-          println(s"User creation failed: $error")
           BadRequest(Json.obj("error" -> error))
       }
     }
-  }
-}
+
 
   // Endpoint for user logout
   def logout = Action { implicit request =>
