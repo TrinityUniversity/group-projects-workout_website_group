@@ -23,6 +23,15 @@
                     <input type="submit"></input>
                 </form>
 
+
+                <form method="post" action="@routes.WorkoutController.createUser">
+                    @helper.CSRF.formField
+                    <h3>Create User</h3>
+                    Username: <input type="text" name="username" id="username_create"></input>
+                    Password: <input type="password" name="password" id="password_create"></input>
+                    <input type="submit"></input>
+                </form>
+
                 <!--<form id="login" #userlogin = "ngForm" (ngSubmit) = "checkLogin(userlogin.value)">
                     <br>
                     <label class ="text-font, login-text"><b>Username
