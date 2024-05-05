@@ -104,11 +104,17 @@ def getUsername = Action.async(parse.json) { implicit request =>
 
   // Validate user credentials
   def validate = Action.async(parse.json) { implicit request: Request[JsValue] =>
+    var postVals = request.body.asFormUrlEncoded
+    postVals = parsed.parseRaw(postVals).get.toString()
+    postVals.map { args => 
+        val username = args("username").head
+        val password = args("password").head
+    }
   withSessionUserid { userId =>
     withJsonBody[UserData] { ud =>
-      model.validateUser(ud.username, ud.password).map {
+      model.validateUser(username, password).map {
         case Some(userid) => Ok(Json.toJson(true))
-          .withSession("username" -> ud.username, "userid" -> userid.toString)
+          .withSession("username" -> username, "userid" -> userid.toString)
         case None => Ok(Json.toJson(false))
       }
     }
