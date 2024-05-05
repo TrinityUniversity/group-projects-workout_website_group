@@ -51,6 +51,9 @@ def getWorkouts(): Future[Seq[WorkoutsRow]] = {
   db.run(Workouts.result)
 }
 
+def searchWorkouts(query: String): Future[Seq[WorkoutsRow]] = {
+    db.run(Workouts.filter(workout => workout.name like s"%$query%").result)
+  }
 
   // Adds a workout for a specific user
   def addWorkout(workout: WorkoutsRow): Future[Int] = {
