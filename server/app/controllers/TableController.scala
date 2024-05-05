@@ -118,7 +118,7 @@ def getUsername = Action.async(parse.json) { implicit request =>
         val password = args("password").head
     }*/
       model.validateUser(username, password).map {
-        case Some(userid) => Redirect(routes.WorkoutController.home).withSession("username" ->username)
+        case Some(userid) => Ok(views.html.profile(username)).withSession("username" ->username)
           .withSession("username" -> username)
         case None => Redirect(routes.WorkoutController.login)
       }
@@ -149,7 +149,7 @@ def createUser = Action.async(parse.json) { implicit request: Request[JsValue] =
   }
 
   def home = Action { implicit request =>
-        Ok(views.html.home())
+        Ok(views.html.home("hi"))
     }
     def login = Action { implicit request =>
         Ok(views.html.login())
