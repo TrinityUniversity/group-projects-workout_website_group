@@ -92,6 +92,15 @@ def updateFavorites = Action.async(parse.json) { implicit request =>
   }
 }
 
+def getUsername = Action.async(parse.json) { implicit request =>
+    withJsonBody[UserData] { ud =>
+      model.validateUser(ud.username, ud.password).map {
+        case Some(userid) => Ok(Json.toJson(true))
+          .withSession("username" -> ud.username, "userid" -> userid.toString)
+        case None => Ok(Json.toJson(false))
+      }
+    }
+}
 
   // Validate user credentials
   def validate = Action.async(parse.json) { implicit request: Request[JsValue] =>
@@ -125,9 +134,34 @@ def createUser = Action.async(parse.json) { implicit request: Request[JsValue] =
   }
 }
 
-
   // Endpoint for user logout
   def logout = Action { implicit request =>
     Ok(Json.toJson(true)).withNewSession
   }
+
+  def home = Action { implicit request =>
+        Ok(views.html.home())
+    }
+    def login = Action { implicit request =>
+        Ok(views.html.login())
+    }
+    def signUp = Action { implicit request =>
+        Ok(views.html.signUp())
+    }
+    def userprofile = Action { implicit request =>
+      /*val usernameOption = request.session.get("username")
+      usernameOption.map{ username =>
+        Ok(views.html.profile(username))
+      }.getOrElse(Redirect(routes.WorkoutController.login))*/
+      Ok(views.html.profile("mlewis"))
+    }
+    def search = Action { implicit request =>
+        Ok(views.html.search(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+    }
+    def myVideos = Action { implicit request =>
+        Ok(views.html.myVideos(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+    }
+    /*def video = Action { implicit request =>
+        Ok(views.html.video())
+    }*/
 }
