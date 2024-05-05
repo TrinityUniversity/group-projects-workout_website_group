@@ -26,6 +26,9 @@ def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolea
 }
 
 
+def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
+  db.run(Workouts.filter(_.id === id).result.headOption)
+}
 
 
 
@@ -49,6 +52,10 @@ def createUser(username: String, password: String): Future[Either[String, Int]] 
 
 def getWorkouts(): Future[Seq[WorkoutsRow]] = {
   db.run(Workouts.result)
+}
+
+def getUsers(): Future[Seq[UsersRow]] = {
+  db.run(Users.result)
 }
 
 

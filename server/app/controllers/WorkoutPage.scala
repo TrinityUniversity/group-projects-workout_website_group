@@ -7,6 +7,19 @@ import play.api.mvc._
 import play.api.i18n._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import models.Tables._ 
+import models._
+import scala.concurrent.Future
+import models.ReadsAndWrites._
+import scala.concurrent.ExecutionContext
+import javax.inject._
+import slick.jdbc.JdbcProfile
+import play.api.db.slick.DatabaseConfigProvider
+import scala.concurrent.ExecutionContext
+
+
+
+
 
 case class WorkoutPayload(
     Intensity: String,
@@ -26,8 +39,15 @@ object WorkoutPayload {
 }
 
 @Singleton
-class WorkoutPage @Inject() (cc: ControllerComponents)
-    extends AbstractController(cc) {
+class WorkoutPage @Inject()(cc: ControllerComponents, dbConfigProvider: play.api.db.slick.DatabaseConfigProvider)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+    val dbConfig = dbConfigProvider.get[slick.jdbc.JdbcProfile]
+  import dbConfig._
+  import models._
+  import models.ReadsAndWrites._
+  import play.api.libs.json._
+
+  private val model = new WorkoutDatabaseModel(db)
+
   def home = Action {
     Ok(views.html.home())
   }
@@ -51,27 +71,57 @@ class WorkoutPage @Inject() (cc: ControllerComponents)
     Ok(views.html.video())
   }
 
-  def form(): Action[JsValue] = Action(parse.json) { implicit request =>
-    println("within the form");
-    // Parse the JSON body into WorkoutPayload case class
-    val payloadResult = request.body.validate[WorkoutPayload]
 
-    payloadResult.fold(
-      // If JSON validation fails, return a BadRequest response
-      errors => {
-        BadRequest(Json.obj("message" -> "Invalid payload format"))
-      },
-      // If JSON validation succeeds, handle the payload
-      payload => {
-        // Here you would insert the payload data into the database
-        // For demonstration purposes, let's just print the payload to console
-        println("Received payload:", payload)
+    println("within the form")
 
-        // Return a success response
-        Ok(Json.obj("message" -> "Payload received successfully"))
+def form(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+  request.body.validate[WorkoutPayload] match {
+    
+    case JsSuccess(payload, _) =>
+      println("Received payload:", payload)
+      model.getWorkouts().map { allWorkouts =>
+        if (allWorkouts.isEmpty) {
+          Ok(Json.obj("message" -> "No workouts available"))
+        } else {
+          val bestWorkout = findMatch(allWorkouts, payload)
+          Ok(Json.obj(
+            "message" -> "Payload received and processed successfully",
+            "bestWorkout" -> Json.toJson(bestWorkout)  
+          ))
+        }
       }
-    )
+    case JsError(errors) =>
+      Future.successful(BadRequest(Json.obj("message" -> "Invalid payload format", "errors" -> JsError.toJson(errors))))
+  }
+}
 
+
+
+
+
+  def findMatch(allWorkouts: Seq[WorkoutsRow], formInputs: WorkoutPayload): WorkoutsRow = {
+    var bestWorkout = allWorkouts.head
+    var bestScore = score(bestWorkout, formInputs)
+    for (workout <- allWorkouts) {
+      val score_i = score(workout, formInputs)
+      if (score_i > bestScore) {
+        bestScore = score_i
+        bestWorkout = workout
+      }
+    }
+    bestWorkout
   }
 
+
+def score(workout: WorkoutsRow, input: WorkoutPayload): Int = {
+    var x = 0
+    if(workout.sweatLevel == input.Sweat.toInt) x = x + 1
+    if(workout.intensity == input.Intensity.toInt) x = x + 1
+    if(workout.workLength == input.Length.toInt) x = x + 1
+    if(workout.workoutType == input.WorkoutType.toInt) x = x + 1
+    return x
 }
+
+
+}
+

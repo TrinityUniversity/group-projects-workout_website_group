@@ -94,17 +94,21 @@ def updateFavorites = Action.async(parse.json) { implicit request =>
 
 
   // Validate user credentials
-  def validate = Action.async(parse.json) { implicit request: Request[JsValue] =>
-  withSessionUserid { userId =>
-    withJsonBody[UserData] { ud =>
-      model.validateUser(ud.username, ud.password).map {
-        case Some(userid) => Ok(Json.toJson(true))
-          .withSession("username" -> ud.username, "userid" -> userid.toString)
-        case None => Ok(Json.toJson(false))
+def validate = Action.async(parse.json) { implicit request =>
+    request.body.validate[UserData].fold(
+      errors => {
+        Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON", "details" -> errors.toString)))
+      },
+      userData => {
+        model.validateUser(userData.username, userData.password).map {
+          case Some(userid) =>
+            Ok(Json.obj("success" -> true)).withSession("username" -> userData.username, "userid" -> userid.toString)
+          case None =>
+            Ok(Json.obj("success" -> false))
+        }
       }
-    }
+    )
   }
-}
 
 
   // Create a new user
