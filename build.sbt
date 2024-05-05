@@ -22,6 +22,8 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
 		"com.typesafe.slick" %% "slick-codegen" % "3.4.1",
     "org.postgresql" % "postgresql" % "42.7.1",
     "com.typesafe.slick" %% "slick-hikaricp" % "3.4.1",
+    "org.mindrot" % "jbcrypt" % "0.4",
+    jdbc % Test,
     specs2 % Test
   ),
   Test / javaOptions ++= Seq(
@@ -56,7 +58,7 @@ lazy val sharedJs = shared.js
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.12",
   organization := "edu.trinity",
-  libraryDependencies += "org.playframework" %% "play-json" % "3.0.2"
+  libraryDependencies += "org.playframework" %%% "play-json" % "3.0.2"
 
 )
 

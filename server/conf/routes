@@ -5,6 +5,18 @@
 # Home page
 GET        /                             controllers.Application.index
 
-# Prefix must match `play.assets.urlPrefix`
-GET        /assets/*file                 controllers.Assets.at(file)
+# User Authentication and Management
+POST       /validate                     controllers.WorkoutController.validate
+POST       /createUser                   controllers.WorkoutController.createUser
+GET        /logout                       controllers.WorkoutController.logout
+
+# Workout Management
+GET        /test                         controllers.WorkoutController.test
+GET        /workouts                     controllers.WorkoutController.viewWorkouts
+POST       /addWorkout                   controllers.WorkoutController.addWorkout
+POST       /updateWorkout                controllers.WorkoutController.updateWorkout
+POST       /updateFavorites              controllers.WorkoutController.updateFavorites
+
+# Static Assets
+GET        /assets/*file                 controllers.Assets.at(path="/public", file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
