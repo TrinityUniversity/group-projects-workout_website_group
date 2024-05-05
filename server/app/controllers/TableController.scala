@@ -118,9 +118,9 @@ def getUsername = Action.async(parse.json) { implicit request =>
         val password = args("password").head
     }*/
       model.validateUser(username, password).map {
-        case Some(userid) => Ok(Json.toJson(true))
+        case Some(userid) => Redirect(routes.WorkoutController.home).withSession("username" ->username)
           .withSession("username" -> username)
-        case None => Ok(Json.toJson(false))
+        case None => Redirect(routes.WorkoutController.login)
       }
   }
 
