@@ -48,7 +48,18 @@ class WorkoutPage @Inject()(cc: ControllerComponents, dbConfigProvider: play.api
 
   private val model = new WorkoutDatabaseModel(db)
 
-  
+
+    // Action to display and search workouts
+ def search = Action.async { implicit request =>
+    val searchQuery = request.getQueryString("searchInput").map(_.toLowerCase)
+    model.getWorkouts.map { workouts =>
+      val filteredWorkouts = searchQuery match {
+        case Some(query) => workouts.filter(_.name.toLowerCase.contains(query))
+        case None => workouts
+      }
+      Ok(views.html.search(filteredWorkouts.map(_.name), filteredWorkouts.map(_.videoUrl)))
+    }
+  }
 
 
     println("within the form")
