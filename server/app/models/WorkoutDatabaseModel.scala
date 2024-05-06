@@ -22,34 +22,16 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
   def favorite(workoutName: String, username: String): Future[Boolean] = {
       val workoutMatch = db.run(Workouts.filter(_.name === workoutName).result.head)
-      val favoriteIds = db.run(Users.filter(_.username === username).map(_.favorites).result.head)
-      val newFavoriteIds = favoriteIds :+ workoutMatch.id
+      val favoriteIds = db.run(Users.filter(_.username === username).map(_.favorites).result)
+      val newFavoriteIds = for {
+        favid <- favoriteIds
+        workoutid <- workoutMatch
+      } yield {
+        favid :+ workoutid.id
+      }
       val action = Users.filter(_.username === username).map(_.favorites).update(newFavoriteIds)
       db.run(action).map(_ > 0)
   }
-
-//   def favorite(workoutName: String, username: String): Future[Boolean] = {
-//   val action = for {
-//     workoutOption <- Workouts.filter(_.name === workoutName).result.headOption
-//     userOption <- Users.filter(_.username === username).result.headOption
-//     result <- (workoutOption, userOption) match {
-//       case (Some(workout), Some(user)) =>
-//         val newFavorites = user.favorites match {
-//           case Some(favoritesString) =>
-//             val favoriteIds = parseFavorites(favoritesString)
-//             if (favoriteIds.contains(workout.id)) favoriteIds
-//             else favoriteIds :+ workout.id
-//           case None => List(workout.id)
-//         }
-//         val newFavoritesInts = s"{${newFavorites.mkString(",")}}"
-//         Users.filter(_.username === username)
-//           .map(_.favorites).update(Some(newFavoritesInts)).map(_ == 1)
-//       case _ => DBIO.successful(false)
-//     }
-//   } yield result
-
-//   db.run(action.transactionally)
-// }
 
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
@@ -122,9 +104,6 @@ def getUsers(): Future[Seq[UsersRow]] = {
 // Had to make this to parse things since tables.scala is being weird.
   private def parseFavorites(favoritesString: String): List[Int] = {
     favoritesString.trim.stripPrefix("{").stripSuffix("}").split(",").toList.flatMap(s => Try(s.toInt).toOption)
-  }
-  private def parseFavoritesToString(favoritesString: String): List[String] = {
-    favoritesString.trim.stripPrefix("{").stripSuffix("}").split(",").toList
   }
 
 }
