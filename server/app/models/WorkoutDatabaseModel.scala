@@ -19,28 +19,56 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     })
   }
 
-  // Method to update user favorites
-// def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
-//   val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
-//   val updateAction = sql"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
-//   db.run(updateAction).map(_ == 1)
-// }
 
 
-def favorite(workoutName: String, userId: Int): Future[Int] = {
-  val user = db.run(Users.filter(_.userId === userId).result.head)
-  val workoutMatches = db.run(Workouts.filter(_.name === workoutName).result)
-  for {
-    userRow <- user
-    workoutRow <- workoutMatches
-  } yield {
-    val userFavorites = parseFavorites(userRow.favorites)
-    val updatedFavorites = userFavorites :+ workoutRow.head.id
-    val updateAction = Users.filter(_.userId === userId).map(_.favorites).update(updatedFavorites)
-    db.run(updateAction)
-  }
-  
+
+  // def favorite(workoutName: String, userId: Int): Future[Boolean] = {
+  //   val action = for {
+  //     workoutMatch <- Workouts.filter(_.name === workoutName).result.headOption
+  //     userOption <- Users.filter(_.userId === userId).result.headOption
+  //     workouts <- userOption match {
+  //       case Some(user) => user.favorites match {
+  //         case Some(favoritesString) =>
+  //           val favoriteIds = parseFavorites(favoritesString)
+  //           val newFavorites = favoriteIds :+ workoutMatch.get.id
+  //       }
+  //     }
+  //   } yield workouts
+
+  //   db.run(action).map(_ > 0)
+  // }
+  def favorite(workoutName: String, userId: Int): Future[Boolean] = {
+  val action = for {
+    workoutOption <- Workouts.filter(_.name === workoutName).result.headOption
+    userOption <- Users.filter(_.userId === userId).result.headOption
+    result <- (workoutOption, userOption) match {
+      case (Some(workout), Some(user)) =>
+        val newFavorites = user.favorites match {
+          case Some(favoritesString) =>
+            val favoriteIds = parseFavorites(favoritesString)
+            if (favoriteIds.contains(workout.id)) favoriteIds
+            else favoriteIds :+ workout.id
+          case None => List(workout.id)
+        }
+        val newFavoritesString = s"{${newFavorites.mkString(",")}}"
+        Users.filter(_.userId === userId)
+          .map(_.favorites).update(Some(newFavoritesString)).map(_ == 1)
+      case _ => DBIO.successful(false)
+    }
+  } yield result
+
+  db.run(action.transactionally)
 }
+
+
+
+
+// def favorite(workoutName: String, userId: Int): Future[Int] = {
+//   val user = db.run(Users.filter(_.userId === userId).result.head)
+//   val workoutMatches = db.run(Workouts.filter(_.name === workoutName).result)
+//   val newFavs= user.favorites += workoutMatches
+//   db.run(newFavs)
+// }
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
   db.run(Workouts.filter(_.id === id).result.headOption)
@@ -113,12 +141,8 @@ def getUsers(): Future[Seq[UsersRow]] = {
   private def parseFavorites(favoritesString: String): List[Int] = {
     favoritesString.trim.stripPrefix("{").stripSuffix("}").split(",").toList.flatMap(s => Try(s.toInt).toOption)
   }
+  private def parseFavoritesToString(favoritesString: String): List[String] = {
+    favoritesString.trim.stripPrefix("{").stripSuffix("}").split(",").toList
+  }
+
 }
-
-
-
-
-
-
-
-

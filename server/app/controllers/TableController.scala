@@ -126,22 +126,7 @@ def createUser = Action.async { implicit request =>
           BadRequest(Json.obj("error" -> error))
       }
     }
-<<<<<<< HEAD
-def favoriteWorkout2 = Action.async(parse.json) { implicit request =>
-=======
 
-
-def favoriteWorkout = Action.async(parse.json) { implicit request =>
->>>>>>> 2b135605af2aa48261978c7a68ae55e20c1382ed
-  withSessionUserid { userId =>
-    withJsonBody[String] { workoutName =>
-      model.favorite(workoutName, userId).map { success =>
-        if (success > 0) Ok(Json.obj("status" -> "success"))
-        else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
-      }
-    }
-  }
-}
 def favoriteWorkout = Action.async { implicit request =>
   val workoutOption = request.session.get("workoutInput").head
   val userId = request.session.get("userid").head.toInt
