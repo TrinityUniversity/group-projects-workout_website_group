@@ -4,6 +4,7 @@ import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}
 import models.Tables._
 import org.mindrot.jbcrypt.BCrypt
+import scala.util.Try
 import play.api.libs.json.Json
 
 
@@ -19,12 +20,17 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   }
 
   // Method to update user favorites
-def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
-  val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
-  val updateAction = sqlu"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
-  db.run(updateAction).map(_ == 1)
-}
+// def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
+//   val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
+//   val updateAction = sql"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
+//   db.run(updateAction).map(_ == 1)
+// }
 
+
+def favorite(workoutId: Int, userId: Int): Future[Int] = {
+  val query = sql"UPDATE users SET favorites = array_append(favorites, $workoutId) WHERE user_id = $userId".as[Int]
+  db.run(query).map(_.head)
+}
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
   db.run(Workouts.filter(_.id === id).result.headOption)
@@ -75,5 +81,34 @@ def getUsers(): Future[Seq[UsersRow]] = {
     val query = Workouts.filter(_.id === workoutId).map(w => (w.likes, w.views)).update((likes, views))
     db.run(query).map(_ > 0)
   }
+
+    def getFavoriteWorkouts(userId: Int): Future[Seq[WorkoutsRow]] = {
+    val action = for {
+      userOption <- Users.filter(_.userId === userId).result.headOption
+      workouts <- userOption match {
+        case Some(user) => user.favorites match {
+          case Some(favoritesString) =>
+            val favoriteIds = parseFavorites(favoritesString)
+            Workouts.filter(_.id inSet favoriteIds).result
+          case None => DBIO.successful(Seq.empty[WorkoutsRow])
+        }
+        case None => DBIO.successful(Seq.empty[WorkoutsRow])
+      }
+    } yield workouts
+
+    db.run(action)
+  }
+
+// Had to make this to parse things since tables.scala is being weird.
+  private def parseFavorites(favoritesString: String): List[Int] = {
+    favoritesString.trim.stripPrefix("{").stripSuffix("}").split(",").toList.flatMap(s => Try(s.toInt).toOption)
+  }
 }
+
+
+
+
+
+
+
 

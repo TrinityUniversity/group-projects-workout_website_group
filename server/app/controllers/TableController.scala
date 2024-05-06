@@ -80,16 +80,16 @@ def updateWorkout = Action.async(parse.json) { implicit request =>
 }
 
   // Endpoint to update favorites
-def updateFavorites = Action.async(parse.json) { implicit request =>
-  withSessionUserid { userId =>
-    withJsonBody[List[Int]] { favoriteWorkouts =>
-      model.updateUserFavorites(userId, favoriteWorkouts).map { success =>
-        if (success) Ok(Json.obj("status" -> "success", "message" -> "Favorites updated successfully"))
-        else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to update favorites"))
-      }
-    }
-  }
-}
+// def updateFavorites = Action.async(parse.json) { implicit request =>
+//   withSessionUserid { userId =>
+//     withJsonBody[List[Int]] { favoriteWorkouts =>
+//       model.updateUserFavorites(userId, favoriteWorkouts).map { success =>
+//         if (success) Ok(Json.obj("status" -> "success", "message" -> "Favorites updated successfully"))
+//         else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to update favorites"))
+//       }
+//     }
+//   }
+// }
 
 
 def getUsername = Action.async(parse.json) { implicit request =>
@@ -128,6 +128,17 @@ def createUser = Action.async { implicit request =>
     }
 
 
+def favoriteWorkout = Action.async(parse.json) { implicit request =>
+  withSessionUserid { userId =>
+    withJsonBody[Int] { workoutId =>
+      model.favorite(workoutId, userId).map { success =>
+        if (success > 0) Ok(Json.obj("status" -> "success"))
+        else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
+      }
+    }
+  }
+}
+
   // Endpoint for user logout
   def logout = Action { implicit request =>
     Ok(Json.toJson(true)).withNewSession
@@ -148,9 +159,31 @@ def createUser = Action.async { implicit request =>
         Ok(views.html.profile(username))
       }.getOrElse(Redirect(routes.WorkoutController.login))
     }
-   
-    def myVideos = Action { implicit request =>
-        Ok(views.html.myVideos(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+
+
+
+    def myVideos = Action.async { implicit request =>
+  withSessionUserid { userId =>
+    model.getFavoriteWorkouts(userId).map { favoriteWorkouts =>
+      if (favoriteWorkouts.isEmpty) {
+        Ok(views.html.myVideos(Seq.empty, Seq.empty, Seq.empty)) // Adjust parameters as per your view's requirements
+      } else {
+        Ok(views.html.myVideos(
+          favoriteWorkouts.map(_.name),
+          favoriteWorkouts.map(_.videoUrl),
+          favoriteWorkouts.map(_.workoutType) // Assuming workoutType is a descriptive field or similar
+        ))
+      }
     }
+  }
+}
+
+    /*def video = Action { implicit request =>
+        Ok(views.html.video())
+    }*/
+
   
+
+
+
 }

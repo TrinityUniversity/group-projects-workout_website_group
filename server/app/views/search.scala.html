@@ -6,6 +6,7 @@
 @import controllers.routes
 
 
+
 @main("Search") {
     <head>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/main.css")" />
@@ -41,7 +42,12 @@
                             <div>
                                 <a href="@url">
                                     <img src="@url.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/")/0.jpg" alt="@name thumbnail">
-                                </a>
+                                <form method="post" action="@routes.WorkoutController.favoriteWorkout">
+                        @helper.CSRF.formField
+                        <input type="hidden" value="workoutNames(i)" id="workoutInput"></input>
+                        <input type="submit" value="Favorite ❤️"></input>
+                    </form>
+                  </a>
                                 <h3>@name</h3>
                             </div>
                         }
