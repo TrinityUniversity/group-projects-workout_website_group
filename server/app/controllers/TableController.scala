@@ -137,6 +137,8 @@ def createUser = Action.async { implicit request =>
           BadRequest(Json.obj("error" -> error))
       }
     }
+
+
 def favoriteWorkout = Action.async(parse.json) { implicit request =>
   withSessionUserid { userId =>
     withJsonBody[Int] { workoutId =>
@@ -172,9 +174,24 @@ def favoriteWorkout = Action.async(parse.json) { implicit request =>
     def search = Action { implicit request =>
         Ok(views.html.search(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
     }
-    def myVideos = Action { implicit request =>
-        Ok(views.html.myVideos(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+
+
+    def myVideos = Action.async { implicit request =>
+  withSessionUserid { userId =>
+    model.getFavoriteWorkouts(userId).map { favoriteWorkouts =>
+      if (favoriteWorkouts.isEmpty) {
+        Ok(views.html.myVideos(Seq.empty, Seq.empty, Seq.empty)) // Adjust parameters as per your view's requirements
+      } else {
+        Ok(views.html.myVideos(
+          favoriteWorkouts.map(_.name),
+          favoriteWorkouts.map(_.videoUrl),
+          favoriteWorkouts.map(_.workoutType) // Assuming workoutType is a descriptive field or similar
+        ))
+      }
     }
+  }
+}
+
     /*def video = Action { implicit request =>
         Ok(views.html.video())
     }*/
