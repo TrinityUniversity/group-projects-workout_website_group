@@ -144,13 +144,13 @@
       <br>
       <!--Submit this data in a payload-->
       <a class="button1" onclick="submitForm(event)" href="@routes.WorkoutPage.form">Submit</a>
-        <!--<h2>Recommended Workout:</h2>
+        <h2>Recommended Workout:</h2>
         <div>
-            <a id="video" href="url">
-                <img src="url.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/")/0.jpg" alt="name thumbnail">
+            <a id="video" href="">
+                <img id="image"src="''.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/")/0.jpg" alt="">
             </a>
-            <h3>name</h3>
-        </div>-->
+            <h3 id="videoName">Fill out form to get a recommendation.</h3>
+        </div>
 </div>
 
 
@@ -183,7 +183,12 @@
     })
       .then(response => response.json())
       .then(data => {
-        console.log("Success:", data);
+        document.getElementById("video").href = data.bestWorkout.videoUrl;
+        document.getElementById("videoName").innerHTML = data.bestWorkout.name;
+        document.getElementById("image").alt = data.bestWorkout.name + " thumbnail"
+        document.getElementById("image").src = data.bestWorkout.videoUrl + ".replace('https://www.youtube.com/watch?v=', 'https://img.youtube.com/vi/')/0.jpg";
+        console.log("Success:", data.bestWorkout);
+
       })
       .catch((error) => {
         console.error("Error:", error);
