@@ -186,7 +186,7 @@
         document.getElementById("video").href = data.bestWorkout.videoUrl;
         document.getElementById("videoName").innerHTML = data.bestWorkout.name;
         document.getElementById("image").alt = data.bestWorkout.name + " thumbnail"
-        document.getElementById("image").src = data.bestWorkout.videoUrl + ".replace('https://www.youtube.com/watch?v=', 'https://img.youtube.com/vi/')/0.jpg";
+        document.getElementById("image").src = data.bestWorkout.videoUrl.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/") + "/0.jpg";
         console.log("Success:", data.bestWorkout);
 
       })
