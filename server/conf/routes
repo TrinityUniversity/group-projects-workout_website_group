@@ -6,12 +6,17 @@
 GET        /                             controllers.Application.index
 
 # HTML
+
 GET         /home                        controllers.WorkoutController.home
++nocsrf
+POST        /form                        controllers.WorkoutPage.form
 GET         /login                       controllers.WorkoutController.login
 GET         /myVideos                    controllers.WorkoutController.myVideos
 GET         /profile                     controllers.WorkoutController.userprofile
-GET         /search                      controllers.WorkoutController.search
+GET         /search                      controllers.WorkoutPage.search
 GET         /signUp                      controllers.WorkoutController.signUp
+
+
 
 # User Authentication and Management
 POST       /validate                     controllers.WorkoutController.validate
@@ -27,3 +32,4 @@ POST       /addFavorite                  controllers.WorkoutController.favoriteW
 # Static Assets
 GET        /assets/*file                 controllers.Assets.at(path="/public", file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
+

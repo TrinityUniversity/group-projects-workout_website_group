@@ -11,13 +11,6 @@ import play.api.libs.json.Json
 
 class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   
-  /*def validateUser(username: String, password: String): Future[Option[Int]] = {
-    val query = Users.filter(_.username === username).result.headOption
-    db.run(query).map {
-      case Some(user) if BCrypt.checkpw(password, user.password) => Some(user.userId)
-      case _ => None
-    }
-  }*/
 
   def validateUser(username: String, password: String): Future[Option[Int]] = {
     val matches = db.run(Users.filter(_.username === username).result)
@@ -39,6 +32,9 @@ def favorite(workoutId: Int, userId: Int): Future[Int] = {
   db.run(query).map(_.head)
 }
 
+def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
+  db.run(Workouts.filter(_.id === id).result.headOption)
+}
 
 
 
@@ -62,6 +58,15 @@ def createUser(username: String, password: String): Future[Either[String, Int]] 
 
 def getWorkouts(): Future[Seq[WorkoutsRow]] = {
   db.run(Workouts.result)
+}
+
+
+def searchWorkouts(query: String): Future[Seq[WorkoutsRow]] = {
+    db.run(Workouts.filter(workout => workout.name like s"%$query%").result)
+  }
+
+def getUsers(): Future[Seq[UsersRow]] = {
+  db.run(Users.result)
 }
 
 

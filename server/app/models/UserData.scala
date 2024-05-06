@@ -16,7 +16,6 @@ object ReadsAndWrites {
 
   implicit val workoutDataFormat: Format[WorkoutData] = Json.format[WorkoutData]
 
-  // Serializer for WorkoutsRow
   implicit val workoutsRowWrites: Writes[Tables.WorkoutsRow] = (
     (__ \ "id").write[Int] and
     (__ \ "name").write[String] and

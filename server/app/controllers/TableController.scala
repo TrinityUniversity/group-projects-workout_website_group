@@ -67,9 +67,6 @@ def addWorkout = Action.async(parse.json) { implicit request =>
   }
 }
 
-
-
-
   // Endpoint to update workout details
 def updateWorkout = Action.async(parse.json) { implicit request =>
   withSessionUserid { userId =>
@@ -94,6 +91,7 @@ def updateWorkout = Action.async(parse.json) { implicit request =>
 //   }
 // }
 
+
 def getUsername = Action.async(parse.json) { implicit request =>
     withJsonBody[UserData] { ud =>
       model.validateUser(ud.username, ud.password).map {
@@ -108,15 +106,6 @@ def getUsername = Action.async(parse.json) { implicit request =>
   def validate = Action.async { implicit request =>
         val username = request.body.asFormUrlEncoded.get("username").head
         val password = request.body.asFormUrlEncoded.get("password").head
-        //print(request.body.asFormUrlEncoded.get("username"))
-        //Ok(views.html.home())
-        //val username = request.body \ "username"
-        //val password = request.body \ "password"
-       //Ok(views.html.home())
-    /*request.body.map { args => 
-        val username = args("username").head
-        val password = args("password").head
-    }*/
       model.validateUser(username, password).map {
         case Some(userid) => Ok(views.html.home(username)).withSession("username" ->username)
           .withSession("username" -> username)
@@ -169,11 +158,8 @@ def favoriteWorkout = Action.async(parse.json) { implicit request =>
       usernameOption.map{ username =>
         Ok(views.html.profile(username))
       }.getOrElse(Redirect(routes.WorkoutController.login))
-      //Ok(views.html.profile("mlewis"))
     }
-    def search = Action { implicit request =>
-        Ok(views.html.search(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
-    }
+
 
 
     def myVideos = Action.async { implicit request =>
@@ -195,4 +181,9 @@ def favoriteWorkout = Action.async(parse.json) { implicit request =>
     /*def video = Action { implicit request =>
         Ok(views.html.video())
     }*/
+
+  
+
+
+
 }
