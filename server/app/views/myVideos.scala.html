@@ -28,6 +28,19 @@
     <div class="shadow">
         <p class="shift-left">Edit Favorites</p>
         <h2>My Workouts</h2>
+        @if(workoutNames.isEmpty) {
+        } else {
+            @for((name, url) <- (workoutNames, workoutUrls).zipped) {
+                <div>
+                    <a href="@url">
+                        <img src="@url.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/")/0.jpg" alt="@name thumbnail">
+                    </a>
+                    <h3>@name</h3>
+                </div>
+            }
+        }
+
+
         <table>
             @if(workoutNames == List()) {
                 <row>None</row>
