@@ -49,9 +49,9 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
             else favoriteIds :+ workout.id
           case None => List(workout.id)
         }
-        val newFavoritesString = s"{${newFavorites.mkString(",")}}"
+        val newFavoritesInts = s"{${newFavorites.mkString(",")}}"
         Users.filter(_.username === username)
-          .map(_.favorites).update(Some(newFavoritesString)).map(_ == 1)
+          .map(_.favorites).update(Some(newFavoritesInts)).map(_ == 1)
       case _ => DBIO.successful(false)
     }
   } yield result
@@ -110,9 +110,9 @@ def getUsers(): Future[Seq[UsersRow]] = {
     db.run(query).map(_ > 0)
   }
 
-    def getFavoriteWorkouts(userId: Int): Future[Seq[WorkoutsRow]] = {
+    def getFavoriteWorkouts(username: String): Future[Seq[WorkoutsRow]] = {
     val action = for {
-      userOption <- Users.filter(_.userId === userId).result.headOption
+      userOption <- Users.filter(_.username === username).result.headOption
       workouts <- userOption match {
         case Some(user) => user.favorites match {
           case Some(favoritesString) =>

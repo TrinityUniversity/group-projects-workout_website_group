@@ -176,8 +176,8 @@ def favoriteWorkout = Action.async { implicit request =>
 
 
     def myVideos = Action.async { implicit request =>
-  withSessionUserid { userId =>
-    model.getFavoriteWorkouts(userId).map { favoriteWorkouts =>
+    val username = request.session.get("username").head
+    model.getFavoriteWorkouts(username).map { favoriteWorkouts =>
       if (favoriteWorkouts.isEmpty) {
         Ok(views.html.myVideos(Seq.empty, Seq.empty, Seq.empty)) // Adjust parameters as per your view's requirements
       } else {
@@ -189,7 +189,6 @@ def favoriteWorkout = Action.async { implicit request =>
       }
     }
   }
-}
 
     /*def video = Action { implicit request =>
         Ok(views.html.video())
