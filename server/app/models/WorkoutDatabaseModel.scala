@@ -21,17 +21,24 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
 
   def favorite(workoutName: String, username: String): Future[Boolean] = {
-      val workoutMatch = db.run(Workouts.filter(_.name === workoutName).result.head)
-      val favoriteIds = db.run(Users.filter(_.username === username).map(_.favorites).result)
-      val newFavoriteIds = for {
-        favid <- favoriteIds
-        workoutid <- workoutMatch
-      } yield {
-        favid :+ workoutid.id
-      }
-      val action = Users.filter(_.username === username).map(_.favorites).update(newFavoriteIds)
-      db.run(action).map(_ > 0)
+  val workoutIdFuture = db.run(Workouts.filter(_.name === workoutName).map(_.id).result.headOption)
+
+
+  workoutIdFuture.flatMap {
+    case Some(workoutId) =>
+      val updateAction = sqlu"""
+        UPDATE users
+        SET favorites = array_append(favorites, $workoutId)
+        WHERE username = $username
+      """
+      db.run(updateAction).map(_ == 1) 
+    case None =>
+      Future.successful(false)
   }
+}
+
+
+
 
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
