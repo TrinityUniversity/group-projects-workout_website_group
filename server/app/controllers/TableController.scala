@@ -94,6 +94,7 @@ def updateFavorites = Action.async(parse.json) { implicit request =>
   }
 }
 
+
 def getUsername = Action.async(parse.json) { implicit request =>
     withJsonBody[UserData] { ud =>
       model.validateUser(ud.username, ud.password).map {
