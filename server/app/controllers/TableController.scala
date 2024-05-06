@@ -135,7 +135,7 @@ def favoriteWorkout = Action.async { implicit request =>
   postVals.map { args =>
     val workoutOption = args("workoutInput").head
       model.favorite(workoutOption, username).map {
-        case success =>  Ok(views.html.myVideos(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+        case success =>  Ok(views.html.search(Seq(),Seq()))
         case _ => BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
       }
     }.getOrElse(Future.successful(BadRequest("Invalid request")))
