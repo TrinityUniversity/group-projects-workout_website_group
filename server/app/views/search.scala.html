@@ -23,12 +23,14 @@
                     <li><a href="@routes.WorkoutPage.myVideos">My Workouts</a></li>
                     <li><a href="@routes.WorkoutPage.profile">User Profile</a></li>
                 </ul>
+                
                 <form action="@routes.WorkoutPage.search" method="GET">
                     <input type="text" name="searchInput" placeholder="Search workouts...">
                     <button type="submit">Search</button>
                 </form>
-                <h3 class="shift-left">All Videos</h3>
-                <div>
+                
+                <div class="shadow">
+                    <h2 class="shift-left">All Videos</h2>
                     @if(workoutNames.isEmpty) {
                         <p>No workouts found.</p>
                     } else {
