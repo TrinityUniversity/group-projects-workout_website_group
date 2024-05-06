@@ -7,6 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import models._
 import slick.jdbc.PostgresProfile.api._
+import play.api.data._
+import play.api.data.Forms._
 
 @Singleton
 class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: play.api.db.slick.DatabaseConfigProvider) extends AbstractController(cc) {
@@ -92,10 +94,7 @@ def updateFavorites = Action.async(parse.json) { implicit request =>
   }
 }
 
-
-  // Validate user credentials
-  def validate = Action.async(parse.json) { implicit request: Request[JsValue] =>
-  withSessionUserid { userId =>
+def getUsername = Action.async(parse.json) { implicit request =>
     withJsonBody[UserData] { ud =>
       model.validateUser(ud.username, ud.password).map {
         case Some(userid) => Ok(Json.toJson(true))
@@ -103,31 +102,71 @@ def updateFavorites = Action.async(parse.json) { implicit request =>
         case None => Ok(Json.toJson(false))
       }
     }
-  }
 }
+
+  // Validate user credentials
+  def validate = Action.async { implicit request =>
+        val username = request.body.asFormUrlEncoded.get("username").head
+        val password = request.body.asFormUrlEncoded.get("password").head
+        //print(request.body.asFormUrlEncoded.get("username"))
+        //Ok(views.html.home())
+        //val username = request.body \ "username"
+        //val password = request.body \ "password"
+       //Ok(views.html.home())
+    /*request.body.map { args => 
+        val username = args("username").head
+        val password = args("password").head
+    }*/
+      model.validateUser(username, password).map {
+        case Some(userid) => Ok(views.html.home(username)).withSession("username" ->username)
+          .withSession("username" -> username)
+        case None => Redirect(routes.WorkoutController.login)
+      }
+  }
 
 
   // Create a new user
-def createUser = Action.async(parse.json) { implicit request: Request[JsValue] =>
-  println(s"Received request to create user: ${request.body}")
-  withSessionUserid { userId =>
-    withJsonBody[UserData] { ud =>
-      println(s"Parsed UserData: $ud")
-      model.createUser(ud.username, ud.password).map {
+def createUser = Action.async { implicit request =>
+  val username = request.body.asFormUrlEncoded.get("username").head
+  val password = request.body.asFormUrlEncoded.get("password").head
+
+      model.createUser(username, password).map {
         case Right(userid) =>
-          println(s"User creation successful: $userid")
-          Ok(Json.toJson(true)).withSession("username" -> ud.username, "userid" -> userid.toString)
+           Ok(views.html.home(username)).withSession("username" ->username)
         case Left(error) =>
-          println(s"User creation failed: $error")
           BadRequest(Json.obj("error" -> error))
       }
     }
-  }
-}
 
 
   // Endpoint for user logout
   def logout = Action { implicit request =>
     Ok(Json.toJson(true)).withNewSession
   }
+
+  def home = Action { implicit request =>
+        Ok(views.html.home("hi"))
+    }
+    def login = Action { implicit request =>
+        Ok(views.html.login())
+    }
+    def signUp = Action { implicit request =>
+        Ok(views.html.signUp())
+    }
+    def userprofile = Action { implicit request =>
+      /*val usernameOption = request.session.get("username")
+      usernameOption.map{ username =>
+        Ok(views.html.profile(username))
+      }.getOrElse(Redirect(routes.WorkoutController.login))*/
+      Ok(views.html.profile("mlewis"))
+    }
+    def search = Action { implicit request =>
+        Ok(views.html.search(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+    }
+    def myVideos = Action { implicit request =>
+        Ok(views.html.myVideos(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+    }
+    /*def video = Action { implicit request =>
+        Ok(views.html.video())
+    }*/
 }
