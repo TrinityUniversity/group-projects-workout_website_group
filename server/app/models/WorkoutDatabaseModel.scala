@@ -20,44 +20,36 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   }
 
 
-  // def favorite(workoutName: String, userId: Int): Future[Boolean] = {
-  //   val action = for {
-  //     workoutMatch <- Workouts.filter(_.name === workoutName).result.headOption
-  //     userOption <- Users.filter(_.userId === userId).result.headOption
-  //     workouts <- userOption match {
-  //       case Some(user) => user.favorites match {
-  //         case Some(favoritesString) =>
-  //           val favoriteIds = parseFavorites(favoritesString)
-  //           val newFavorites = favoriteIds :+ workoutMatch.get.id
-  //       }
-  //     }
-  //   } yield workouts
-
-  //   db.run(action).map(_ > 0)
-  // }
-
   def favorite(workoutName: String, username: String): Future[Boolean] = {
-  val action = for {
-    workoutOption <- Workouts.filter(_.name === workoutName).result.headOption
-    userOption <- Users.filter(_.username === username).result.headOption
-    result <- (workoutOption, userOption) match {
-      case (Some(workout), Some(user)) =>
-        val newFavorites = user.favorites match {
-          case Some(favoritesString) =>
-            val favoriteIds = parseFavorites(favoritesString)
-            if (favoriteIds.contains(workout.id)) favoriteIds
-            else favoriteIds :+ workout.id
-          case None => List(workout.id)
-        }
-        val newFavoritesInts = s"{${newFavorites.mkString(",")}}"
-        Users.filter(_.username === username)
-          .map(_.favorites).update(Some(newFavoritesInts)).map(_ == 1)
-      case _ => DBIO.successful(false)
-    }
-  } yield result
+      val workoutMatch = db.run(Workouts.filter(_.name === workoutName).result.head)
+      val favoriteIds = db.run(Users.filter(_.username === username).map(_.favorites).result.head)
+      val newFavoriteIds = favoriteIds :+ workoutMatch.id
+      val action = Users.filter(_.username === username).map(_.favorites).update(newFavoriteIds)
+      db.run(action).map(_ > 0)
+  }
 
-  db.run(action.transactionally)
-}
+//   def favorite(workoutName: String, username: String): Future[Boolean] = {
+//   val action = for {
+//     workoutOption <- Workouts.filter(_.name === workoutName).result.headOption
+//     userOption <- Users.filter(_.username === username).result.headOption
+//     result <- (workoutOption, userOption) match {
+//       case (Some(workout), Some(user)) =>
+//         val newFavorites = user.favorites match {
+//           case Some(favoritesString) =>
+//             val favoriteIds = parseFavorites(favoritesString)
+//             if (favoriteIds.contains(workout.id)) favoriteIds
+//             else favoriteIds :+ workout.id
+//           case None => List(workout.id)
+//         }
+//         val newFavoritesInts = s"{${newFavorites.mkString(",")}}"
+//         Users.filter(_.username === username)
+//           .map(_.favorites).update(Some(newFavoritesInts)).map(_ == 1)
+//       case _ => DBIO.successful(false)
+//     }
+//   } yield result
+
+//   db.run(action.transactionally)
+// }
 
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
