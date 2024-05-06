@@ -83,16 +83,16 @@ def updateWorkout = Action.async(parse.json) { implicit request =>
 }
 
   // Endpoint to update favorites
-def updateFavorites = Action.async(parse.json) { implicit request =>
-  withSessionUserid { userId =>
-    withJsonBody[List[Int]] { favoriteWorkouts =>
-      model.updateUserFavorites(userId, favoriteWorkouts).map { success =>
-        if (success) Ok(Json.obj("status" -> "success", "message" -> "Favorites updated successfully"))
-        else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to update favorites"))
-      }
-    }
-  }
-}
+// def updateFavorites = Action.async(parse.json) { implicit request =>
+//   withSessionUserid { userId =>
+//     withJsonBody[List[Int]] { favoriteWorkouts =>
+//       model.updateUserFavorites(userId, favoriteWorkouts).map { success =>
+//         if (success) Ok(Json.obj("status" -> "success", "message" -> "Favorites updated successfully"))
+//         else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to update favorites"))
+//       }
+//     }
+//   }
+// }
 
 def getUsername = Action.async(parse.json) { implicit request =>
     withJsonBody[UserData] { ud =>
@@ -137,11 +137,11 @@ def createUser = Action.async { implicit request =>
           BadRequest(Json.obj("error" -> error))
       }
     }
-def favoriteWorkout = Action.async { implicit request =>
+def favoriteWorkout = Action.async(parse.json) { implicit request =>
   withSessionUserid { userId =>
     withJsonBody[Int] { workoutId =>
       model.favorite(workoutId, userId).map { success =>
-        if (success) Ok(Json.obj("status" -> "success"))
+        if (success > 0) Ok(Json.obj("status" -> "success"))
         else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
       }
     }

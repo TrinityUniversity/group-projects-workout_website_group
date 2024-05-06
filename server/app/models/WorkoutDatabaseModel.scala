@@ -26,16 +26,16 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   }
 
   // Method to update user favorites
-def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
-  val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
-  val updateAction = sqlu"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
-  db.run(updateAction).map(_ == 1)
-}
+// def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
+//   val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
+//   val updateAction = sql"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
+//   db.run(updateAction).map(_ == 1)
+// }
 
 
-def favorite(workoutId: Int, userId: Int): Future[Boolean] = {
+def favorite(workoutId: Int, userId: Int): Future[Int] = {
   val query = sql"UPDATE users SET favorites = array_append(favorites, $workoutId) WHERE user_id = $userId".as[Int]
-  db.run(query).map(_ > 0)
+  db.run(query).map(_.head)
 }
 
 
