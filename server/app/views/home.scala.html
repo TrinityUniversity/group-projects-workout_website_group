@@ -2,61 +2,171 @@
 @(username: String)
 
 @main("home") {
-    <head>
-        <link rel="stylesheet" type="text/css" href="../../public/stylesheets/main.css" />
-    </head>
-    
-    <section class="hero is-primary is-bold is-fullheight">
-        <div class="top-left">
-            <a class="button1" href="@routes.WorkoutController.login">Log Out</a>
+<form id="form">
+
+  <head>
+    <link rel="stylesheet" type="text/css" href="../../public/stylesheets/main.css" />
+  </head>
+
+  <section class="hero is-primary is-bold is-fullheight">
+    <div class="top-left">
+      <a class="button1" href="@routes.WorkoutController.login">Log Out</a>
+    </div>
+    <div class="hero-body">
+      <div class="container has text-centered">
+        <h1 class="text-font"
+          style="color: white; margin-bottom: 10px ;font-size: 100px; font-weight: 400; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+          Workout Lab
+        </h1>
+
+        <ul>
+            <li><a href="@routes.WorkoutController.home"> HOME </a></li>
+            <li><a href="@routes.WorkoutPage.search"> WORKOUT SEARCH </a></li>
+            <li><a class="active" href="@routes.WorkoutController.myVideos"> MY WORKOUTS </a></li>
+            <li><a href="@routes.WorkoutController.userprofile"> USER PROFILE </a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="shadow">
+      <h2>Answer the following questions to get a personalized workout recommendation:</h2>
+      <br>
+      <fieldset>
+        <legend>Select Your Ideal Level of Intensity:</legend>
+
+        <div>
+          <input type="radio" id="1" name="Intensity" value="1" checked />
+          <label for="1">Light</label>
         </div>
-        <div class="hero-body">
-            <div class="container has text-centered">
-                <h1 class="text-font"
-                    style="color: white; margin-bottom: 10px ;font-size: 100px; font-weight: 400; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-                    Workout Lab
-                </h1>
-            
-                <ul>
-                    <li><a class="active" href="@routes.WorkoutController.home"> HOME </a></li>
-                <li><a href="@routes.WorkoutController.search"> WORKOUT SEARCH </a></li>
-                <li><a href="@routes.WorkoutController.myVideos"> MY WORKOUTS </a></li>
-                <li><a href="@routes.WorkoutController.userprofile"> USER PROFILE </a></li>
-                </ul>
-            </div>
+
+        <div>
+          <input type="radio" id="2" name="Intensity" value="2" />
+          <label for="2">Medium</label>
         </div>
-        <div class="shadow">
-            <h2>Answer the following questions to get a personalized workout recommendation:</h2>  
-            <br>
-            <h3>Question 1 of 4</h3>
-            <h4>Select Your Ideal Level of Intensity:</h4>
-            <div class="button1">Light </div>
-            <div class="button1">Moderate </div>
-            <div class="button1">Heavy </div>
-            <br>
-            <h3>Question 2 of 4</h3>
-            <h4>Select Your Ideal Level of Sweat:</h4>
-            <div class="button1">Light: No Sweat</div>
-            <div class="button1">Medium: Light Sweat</div>
-            <div class="button1">Burner: Moderate Sweat</div>
-            <br>
-            <h3>Question 3 of 4</h3>
-            <h4>Select Your Ideal Length:</h4>
-            <div class="button1">less than 30 minutes </div>
-            <div class="button1">between 30 minutes and 1 hour</div>
-            <div class="button1">over an hour</div>
-            <br>
-            <h3>Question 4 of 4</h3>
-            <h4>Select Your Type of workout:</h4>
-            <div class="button1">Lower body 🦵</div>
-            <div class="button1">Upper body 💪</div>
-            <div class="button1">Full body 🤾</div>
-            <br>
-            <!--Submit this data in a payload-->
-            <a class="button1" href="@routes.WorkoutController.search">Submit</a>
+
+        <div>
+          <input type="radio" id="3" name="Intensity" value="3" />
+          <label for="3">Heavy</label>
         </div>
-        
-    
-       
-    </section>
+
+      </fieldset>
+
+      <br>
+
+      <fieldset>
+        <legend>Select Your Ideal Level of Sweat:</legend>
+
+        <div>
+          <input type="radio" id="1" name="Sweat" value="1" checked />
+          <label for="1">No sweat</label>
+        </div>
+
+        <div>
+          <input type="radio" id="2" name="Sweat" value="2" />
+          <label for="2">Light Sweat</label>
+        </div>
+
+        <div>
+          <input type="radio" id="3" name="Sweat" value="3" />
+          <label for="3">Moderate Sweat</label>
+        </div>
+      </fieldset>
+
+
+      <br>
+
+      <fieldset>
+        <legend>Select Your Ideal Level of Length:</legend>
+
+        <div>
+          <input type="radio" id="1" name="Length" value="1" checked />
+          <label for="1">less than 30 minutes</label>
+        </div>
+
+        <div>
+          <input type="radio" id="2" name="Length" value="2" />
+          <label for="2">between 30 minutes and 1 hour</label>
+        </div>
+
+        <div>
+          <input type="radio" id="3" name="Length" value="3" />
+          <label for="3">over and hour</label>
+        </div>
+      </fieldset>
+
+      <br>
+
+      <fieldset>
+        <legend>Select Your Ideal type of workout:</legend>
+
+        <div>
+          <input type="radio" id="1" name="WorkoutType" value="1" checked />
+          <label for="1">Lower Body</label>
+        </div>
+
+        <div>
+          <input type="radio" id="2" name="WorkoutType" value="2" />
+          <label for="2">Upper Body</label>
+        </div>
+
+        <div>
+          <input type="radio" id="3" name="WorkoutType" value="3" />
+          <label for="3">Full Body</label>
+        </div>
+      </fieldset>
+
+      <br>
+      <!--Submit this data in a payload-->
+      <a class="button1" onclick="submitForm(event)" href="@routes.WorkoutPage.form">Submit</a>
+        <h2>Recommended Workout:</h2>
+        <div>
+            <a id="video" href="">
+                <img id="image"src="''.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/")/0.jpg" alt="">
+            </a>
+            <h3 id="videoName">Fill out form to get a recommendation.</h3>
+        </div>
+</div>
+
+
+</form>
+</section>
+
+<script>
+
+
+  function submitForm(event) {
+    event.preventDefault();
+
+    var form = document.getElementById("form");
+    var payload = {
+      Intensity: form.elements["Intensity"].value,
+      Sweat: form.elements["Sweat"].value,
+      Length: form.elements["Length"].value,
+      WorkoutType: form.elements["WorkoutType"].value
+    };
+
+    console.log("Payload:", payload);
+
+    // Sending the data to the server
+    fetch("/form", {  // Ensure this matches the route defined for handling form submissions.
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("video").href = data.bestWorkout.videoUrl;
+        document.getElementById("videoName").innerHTML = data.bestWorkout.name;
+        document.getElementById("image").alt = data.bestWorkout.name + " thumbnail"
+        document.getElementById("image").src = data.bestWorkout.videoUrl.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/") + "/0.jpg";
+        console.log("Success:", data.bestWorkout);
+
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
+</script>
 }
