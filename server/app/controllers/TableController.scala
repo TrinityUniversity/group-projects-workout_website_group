@@ -129,7 +129,7 @@ def createUser = Action.async { implicit request =>
 
 def favoriteWorkout = Action.async { implicit request =>
   val postVals = request.body.asFormUrlEncoded
-  val userId = request.session.get("userid").head.toInt
+  withSessionUserid { userId =>
   postVals.map { args =>
     val workoutOption = args("workoutInput").head
       model.favorite(workoutOption, userId).map {
@@ -138,6 +138,7 @@ def favoriteWorkout = Action.async { implicit request =>
       }
     }.getOrElse(Future.successful(BadRequest("Invalid request")))
   }
+}
 
 // def favoriteWorkout2 = Action.async(parse.json) { implicit request =>
 //   withSessionUserid { userId =>
