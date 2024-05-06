@@ -48,28 +48,7 @@ class WorkoutPage @Inject()(cc: ControllerComponents, dbConfigProvider: play.api
 
   private val model = new WorkoutDatabaseModel(db)
 
-  def home = Action {
-    Ok(views.html.home())
-  }
-  def login = Action {
-    Ok(views.html.login())
-  }
-  def signUp = Action {
-    Ok(views.html.signUp())
-  }
-  def profile = Action {
-    Ok(views.html.profile())
-  }
-  def search = Action {
-    // form();
-    Ok(views.html.search())
-  }
-  def myVideos = Action {
-    Ok(views.html.myVideos())
-  }
-  def video = Action {
-    Ok(views.html.video())
-  }
+  
 
 
     println("within the form")

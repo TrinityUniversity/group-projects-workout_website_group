@@ -7,15 +7,14 @@ GET        /                             controllers.Application.index
 
 # HTML
 
-GET         /home                        controllers.WorkoutPage.home
+GET         /home                        controllers.WorkoutController.home
 +nocsrf
 POST        /form                        controllers.WorkoutPage.form
-GET         /login                       controllers.WorkoutPage.login
-GET         /myVideos                    controllers.WorkoutPage.myVideos
-GET         /profile                     controllers.WorkoutPage.profile
-GET         /search                      controllers.WorkoutPage.search
-GET         /signUp                      controllers.WorkoutPage.signUp
-GET         /video                       controllers.WorkoutPage.video
+GET         /login                       controllers.WorkoutController.login
+GET         /myVideos                    controllers.WorkoutController.myVideos
+GET         /profile                     controllers.WorkoutController.userprofile
+GET         /search                      controllers.WorkoutController.search
+GET         /signUp                      controllers.WorkoutController.signUp
 
 
 # User Authentication and Management
