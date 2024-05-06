@@ -154,11 +154,11 @@ def createUser = Action.async { implicit request =>
         Ok(views.html.signUp())
     }
     def userprofile = Action { implicit request =>
-      /*val usernameOption = request.session.get("username")
+      val usernameOption = request.session.get("username")
       usernameOption.map{ username =>
         Ok(views.html.profile(username))
-      }.getOrElse(Redirect(routes.WorkoutController.login))*/
-      Ok(views.html.profile("mlewis"))
+      }.getOrElse(Redirect(routes.WorkoutController.login))
+      //Ok(views.html.profile("mlewis"))
     }
     def search = Action { implicit request =>
         Ok(views.html.search(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
