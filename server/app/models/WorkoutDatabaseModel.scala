@@ -10,12 +10,19 @@ import play.api.libs.json.Json
 
 class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   
-  def validateUser(username: String, password: String): Future[Option[Int]] = {
+  /*def validateUser(username: String, password: String): Future[Option[Int]] = {
     val query = Users.filter(_.username === username).result.headOption
     db.run(query).map {
       case Some(user) if BCrypt.checkpw(password, user.password) => Some(user.userId)
       case _ => None
     }
+  }*/
+
+  def validateUser(username: String, password: String): Future[Option[Int]] = {
+    val matches = db.run(Users.filter(_.username === username).result)
+    matches.map(userRows => userRows.headOption.flatMap {
+      userRow => if (BCrypt.checkpw(password, userRow.password)) Some(userRow.userId) else None
+    })
   }
 
   // Method to update user favorites

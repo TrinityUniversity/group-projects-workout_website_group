@@ -124,4 +124,3 @@ def score(workout: WorkoutsRow, input: WorkoutPayload): Int = {
 
 
 }
-
