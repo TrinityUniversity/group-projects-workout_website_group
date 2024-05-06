@@ -18,9 +18,6 @@ import play.api.db.slick.DatabaseConfigProvider
 import scala.concurrent.ExecutionContext
 
 
-
-
-
 case class WorkoutPayload(
     Intensity: String,
     Sweat: String,
@@ -85,10 +82,6 @@ def form(): Action[JsValue] = Action.async(parse.json) { implicit request =>
   }
 }
 
-
-
-
-
   def findMatch(allWorkouts: Seq[WorkoutsRow], formInputs: WorkoutPayload): WorkoutsRow = {
     var bestWorkout = allWorkouts.head
     var bestScore = score(bestWorkout, formInputs)
@@ -102,7 +95,6 @@ def form(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     bestWorkout
   }
 
-
 def score(workout: WorkoutsRow, input: WorkoutPayload): Int = {
     var x = 0
     if(workout.sweatLevel == input.Sweat.toInt) x = x + 1
@@ -111,6 +103,5 @@ def score(workout: WorkoutsRow, input: WorkoutPayload): Int = {
     if(workout.workoutType == input.WorkoutType.toInt) x = x + 1
     return x
 }
-
 
 }
