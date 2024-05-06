@@ -33,9 +33,19 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 // }
 
 
-def favorite(workoutId: Int, userId: Int): Future[Int] = {
-  val query = sql"UPDATE users SET favorites = array_append(favorites, $workoutId) WHERE user_id = $userId".as[Int]
-  db.run(query).map(_.head)
+def favorite(workoutName: String, userId: Int): Future[Int] = {
+  val user = db.run(Users.filter(_.userId === userId).result.head)
+  val workoutMatches = db.run(Workouts.filter(_.name === workoutName).result)
+  for {
+    userRow <- user
+    workoutRow <- workoutMatches
+  } yield {
+    val userFavorites = parseFavorites(userRow.favorites)
+    val updatedFavorites = userFavorites :+ workoutRow.head.id
+    val updateAction = Users.filter(_.userId === userId).map(_.favorites).update(updatedFavorites)
+    db.run(updateAction)
+  }
+  
 }
 
 
