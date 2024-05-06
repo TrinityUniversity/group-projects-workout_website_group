@@ -137,7 +137,14 @@ def createUser = Action.async { implicit request =>
           BadRequest(Json.obj("error" -> error))
       }
     }
-
+def favoriteWorkout = Action.async { implicit request =>
+  withSessionUserid { userId =>
+    model.favorite(workoutId, userId).map { success =>
+      if (success) Ok(Json.obj("status" -> "success"))
+      else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
+    }
+  }
+}
 
   // Endpoint for user logout
   def logout = Action { implicit request =>

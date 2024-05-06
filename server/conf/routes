@@ -22,7 +22,7 @@ GET        /logout                       controllers.WorkoutController.logout
 GET        /workouts                     controllers.WorkoutController.viewWorkouts
 POST       /addWorkout                   controllers.WorkoutController.addWorkout
 POST       /updateWorkout                controllers.WorkoutController.updateWorkout
-POST       /updateFavorites              controllers.WorkoutController.updateFavorites
+POST       /addFavorite                  controllers.WorkoutController.favoriteWorkout
 
 # Static Assets
 GET        /assets/*file                 controllers.Assets.at(path="/public", file)

@@ -33,7 +33,10 @@ def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolea
 }
 
 
-
+def favorite(workoutId: Int, userId: Int): Future[Boolean] = {
+  val query = sql"UPDATE users SET favorites = array_append(favorites, $workoutId) WHERE user_id = $userId".as[Int]
+  db.run(query).map(_ > 0)
+}
 
 
 
