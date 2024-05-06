@@ -139,9 +139,11 @@ def createUser = Action.async { implicit request =>
     }
 def favoriteWorkout = Action.async { implicit request =>
   withSessionUserid { userId =>
-    model.favorite(workoutId, userId).map { success =>
-      if (success) Ok(Json.obj("status" -> "success"))
-      else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
+    withJsonBody[Int] { workoutId =>
+      model.favorite(workoutId, userId).map { success =>
+        if (success) Ok(Json.obj("status" -> "success"))
+        else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
+      }
     }
   }
 }
