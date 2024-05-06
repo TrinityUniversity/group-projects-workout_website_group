@@ -10,12 +10,19 @@ import play.api.libs.json.Json
 
 class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   
-  def validateUser(username: String, password: String): Future[Option[Int]] = {
+  /*def validateUser(username: String, password: String): Future[Option[Int]] = {
     val query = Users.filter(_.username === username).result.headOption
     db.run(query).map {
       case Some(user) if BCrypt.checkpw(password, user.password) => Some(user.userId)
       case _ => None
     }
+  }*/
+
+  def validateUser(username: String, password: String): Future[Option[Int]] = {
+    val matches = db.run(Users.filter(_.username === username).result)
+    matches.map(userRows => userRows.headOption.flatMap {
+      userRow => if (BCrypt.checkpw(password, userRow.password)) Some(userRow.userId) else None
+    })
   }
 
   // Method to update user favorites
@@ -26,6 +33,9 @@ def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolea
 }
 
 
+def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
+  db.run(Workouts.filter(_.id === id).result.headOption)
+}
 
 
 
@@ -51,9 +61,15 @@ def getWorkouts(): Future[Seq[WorkoutsRow]] = {
   db.run(Workouts.result)
 }
 
+
 def searchWorkouts(query: String): Future[Seq[WorkoutsRow]] = {
     db.run(Workouts.filter(workout => workout.name like s"%$query%").result)
   }
+
+def getUsers(): Future[Seq[UsersRow]] = {
+  db.run(Users.result)
+}
+
 
   // Adds a workout for a specific user
   def addWorkout(workout: WorkoutsRow): Future[Int] = {

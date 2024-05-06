@@ -1,7 +1,10 @@
 @* search Template File *@
+
 @(workoutNames: Seq[String], workoutUrls: Seq[String])(implicit request: RequestHeader)
 
+
 @import controllers.routes
+
 
 @main("Search") {
     <head>
@@ -18,10 +21,10 @@
                     Workout Lab
                 </h1>
                 <ul>
-                    <li><a href="@routes.WorkoutPage.home">Home</a></li>
-                    <li><a class="active" href="@routes.WorkoutPage.search">Workout Search</a></li>
-                    <li><a href="@routes.WorkoutPage.myVideos">My Workouts</a></li>
-                    <li><a href="@routes.WorkoutPage.profile">User Profile</a></li>
+                    <li><a href="@routes.WorkoutController.home"> HOME </a></li>
+                    <li><a class="active" href="@routes.WorkoutController.search"> WORKOUT SEARCH </a></li>
+                    <li><a href="@routes.WorkoutController.myVideos"> MY WORKOUTS </a></li>
+                    <li><a href="@routes.WorkoutController.userprofile"> USER PROFILE </a></li>
                 </ul>
                 
                 <form action="@routes.WorkoutPage.search" method="GET">

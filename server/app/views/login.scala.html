@@ -1,5 +1,5 @@
 @* login Template File *@
-@()
+@()(implicit request: RequestHeader, flash: Flash)
 
 
 @main("login") {
@@ -14,7 +14,25 @@
 
         <div class=login-box>
             <div class="login" style="color: rgb(0, 0, 0)">
-                <form id="login" #userlogin = "ngForm" (ngSubmit) = "checkLogin(userlogin.value)">
+
+                <form method="post" action="@routes.WorkoutController.validate">
+                    @helper.CSRF.formField
+                    <h3>Login</h3>
+                    Username: <input type="text" name="username" id="username_login"></input>
+                    Password: <input type="password" name="password" id="password_login"></input>
+                    <input type="submit"></input>
+                </form>
+
+
+                <form method="post" action="@routes.WorkoutController.createUser">
+                    @helper.CSRF.formField
+                    <h3>Create User</h3>
+                    Username: <input type="text" name="username" id="username_create"></input>
+                    Password: <input type="password" name="password" id="password_create"></input>
+                    <input type="submit"></input>
+                </form>
+
+                <!--<form id="login" #userlogin = "ngForm" (ngSubmit) = "checkLogin(userlogin.value)">
                     <br>
                     <label class ="text-font, login-text"><b>Username
                         </b>
@@ -27,14 +45,14 @@
                         <input type="Password" name="password" id="Pass" placeholder="Password" ngModel>
                     <br><br>
                     <div class = "button"> 
-                        <a class="button" href="@routes.WorkoutPage.home">LogIn</a>
+                        <a class="button" href="@routes.WorkoutController.home">LogIn</a>
                     </div>
                     <br><br>
                     <div class = "button"> 
-                        <a class="button" href="@routes.WorkoutPage.signUp">SignUp</a>
+                        <a class="button" href="@routes.WorkoutController.signUp">SignUp</a>
                     </div>
                     <br><br>
-                </form>
+                </form>-->
             </div>
         </div>
 
