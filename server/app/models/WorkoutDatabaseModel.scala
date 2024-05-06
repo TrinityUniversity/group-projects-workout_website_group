@@ -3,9 +3,9 @@ package models
 import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}
 import models.Tables._
-import org.mindrot.jbcrypt.BCrypt
 import scala.util.Try
 import play.api.libs.json.Json
+import org.mindrot.jbcrypt.BCrypt
 
 
 
@@ -18,8 +18,6 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       userRow => if (BCrypt.checkpw(password, userRow.password)) Some(userRow.userId) else None
     })
   }
-
-
 
 
   // def favorite(workoutName: String, userId: Int): Future[Boolean] = {
@@ -37,6 +35,7 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
   //   db.run(action).map(_ > 0)
   // }
+
   def favorite(workoutName: String, userId: Int): Future[Boolean] = {
   val action = for {
     workoutOption <- Workouts.filter(_.name === workoutName).result.headOption
@@ -60,15 +59,6 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
   db.run(action.transactionally)
 }
 
-
-
-
-// def favorite(workoutName: String, userId: Int): Future[Int] = {
-//   val user = db.run(Users.filter(_.userId === userId).result.head)
-//   val workoutMatches = db.run(Workouts.filter(_.name === workoutName).result)
-//   val newFavs= user.favorites += workoutMatches
-//   db.run(newFavs)
-// }
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
   db.run(Workouts.filter(_.id === id).result.headOption)

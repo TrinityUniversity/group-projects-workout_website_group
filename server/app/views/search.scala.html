@@ -44,7 +44,7 @@
                                     <img src="@url.replace("https://www.youtube.com/watch?v=", "https://img.youtube.com/vi/")/0.jpg" alt="@name thumbnail">
                                     <form method="post" action="@routes.WorkoutController.favoriteWorkout">
                                     @helper.CSRF.formField
-                                    <input type="hidden" value="workoutNames(i)" id="workoutInput"></input>
+                                    <input type="hidden" value="@name" name="workoutInput"></input>
                                     <input type="submit" value="Favorite ❤️"></input>
                                     </form>
                                 </a>
