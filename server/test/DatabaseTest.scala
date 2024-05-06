@@ -64,15 +64,7 @@ class DatabaseTest extends PlaySpecification {
       }
     }
 
-    "update user favorites" in {
-      val userId = 1  
-      val favorites = List(1, 2, 3)  
-      withMySlickDatabase { database =>
-        val model = new WorkoutDatabaseModel(database)
-        val result = model.updateUserFavorites(userId, favorites).map(success => success must beTrue)
-        await(result)
-      }
-    }
+   
 
   }
 }

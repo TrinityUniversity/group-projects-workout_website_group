@@ -32,6 +32,8 @@ class WorkoutController @Inject()(cc: ControllerComponents, dbConfigProvider: pl
 
 
 def withSessionUserid(f: Int => Future[Result])(implicit request: Request[_]): Future[Result] = {
+  println(request.session)
+  println(request.session.get("userid"))
   request.session.get("userid").map(userid => f(userid.toInt))
     .getOrElse(Future.successful(BadRequest("User not found")))
 }
@@ -127,17 +129,28 @@ def createUser = Action.async { implicit request =>
       }
     }
 
-
-def favoriteWorkout = Action.async(parse.json) { implicit request =>
-  withSessionUserid { userId =>
-    withJsonBody[Int] { workoutId =>
-      model.favorite(workoutId, userId).map { success =>
-        if (success > 0) Ok(Json.obj("status" -> "success"))
-        else BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
+def favoriteWorkout = Action.async { implicit request =>
+  val postVals = request.body.asFormUrlEncoded
+  val username = request.session.get("username").head
+  postVals.map { args =>
+    val workoutOption = args("workoutInput").head
+      model.favorite(workoutOption, username).map {
+        case success =>  Ok(views.html.myVideos(Seq("15 min STANDING ARM WORKOUT | With Dumbbells | Shoulders, Biceps and Triceps","20 Minute Full Body Cardio HIIT Workout [NO REPEAT]"), Seq("https://www.youtube.com/watch?v=d7j9p9JpLaE", "https://www.youtube.com/watch?v=M0uO8X3_tEA&t=1512s"),Seq("💪","🤾")))
+        case _ => BadRequest(Json.obj("status" -> "error", "message" -> "Failed to favorite workout"))
       }
-    }
+    }.getOrElse(Future.successful(BadRequest("Invalid request")))
   }
-}
+
+// def favoriteWorkout2 = Action.async(parse.json) { implicit request =>
+//   withSessionUserid { userId =>
+//     val workoutOption = request.session.get("workoutInput")
+//       workoutOption.map{ workoutName =>
+//       model.favorite(workoutName, userId).map { success =>
+//         if (success > 0) Ok(views.html.home("hi"))
+//       }
+//     }
+//   }
+// }
 
   // Endpoint for user logout
   def logout = Action { implicit request =>
@@ -163,8 +176,8 @@ def favoriteWorkout = Action.async(parse.json) { implicit request =>
 
 
     def myVideos = Action.async { implicit request =>
-  withSessionUserid { userId =>
-    model.getFavoriteWorkouts(userId).map { favoriteWorkouts =>
+    val username = request.session.get("username").head
+    model.getFavoriteWorkouts(username).map { favoriteWorkouts =>
       if (favoriteWorkouts.isEmpty) {
         Ok(views.html.myVideos(Seq.empty, Seq.empty, Seq.empty)) // Adjust parameters as per your view's requirements
       } else {
@@ -176,7 +189,6 @@ def favoriteWorkout = Action.async(parse.json) { implicit request =>
       }
     }
   }
-}
 
     /*def video = Action { implicit request =>
         Ok(views.html.video())

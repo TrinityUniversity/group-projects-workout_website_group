@@ -3,9 +3,9 @@ package models
 import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}
 import models.Tables._
-import org.mindrot.jbcrypt.BCrypt
 import scala.util.Try
 import play.api.libs.json.Json
+import org.mindrot.jbcrypt.BCrypt
 
 
 
@@ -19,18 +19,27 @@ class WorkoutDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     })
   }
 
-  // Method to update user favorites
-// def updateUserFavorites(userId: Int, favoriteWorkouts: List[Int]): Future[Boolean] = {
-//   val favoritesArrayString = s"{${favoriteWorkouts.mkString(",")}}"  // This creates a string like "{1,2,3}"
-//   val updateAction = sql"UPDATE users SET favorites = $favoritesArrayString::integer[] WHERE user_id = $userId"
-//   db.run(updateAction).map(_ == 1)
-// }
+
+  def favorite(workoutName: String, username: String): Future[Boolean] = {
+  val workoutIdFuture = db.run(Workouts.filter(_.name === workoutName).map(_.id).result.headOption)
 
 
-def favorite(workoutId: Int, userId: Int): Future[Int] = {
-  val query = sql"UPDATE users SET favorites = array_append(favorites, $workoutId) WHERE user_id = $userId".as[Int]
-  db.run(query).map(_.head)
+  workoutIdFuture.flatMap {
+    case Some(workoutId) =>
+      val updateAction = sqlu"""
+        UPDATE users
+        SET favorites = array_append(favorites, $workoutId)
+        WHERE username = $username
+      """
+      db.run(updateAction).map(_ == 1) 
+    case None =>
+      Future.successful(false)
+  }
 }
+
+
+
+
 
 def getWorkoutById(id: Int): Future[Option[WorkoutsRow]] = {
   db.run(Workouts.filter(_.id === id).result.headOption)
@@ -82,9 +91,9 @@ def getUsers(): Future[Seq[UsersRow]] = {
     db.run(query).map(_ > 0)
   }
 
-    def getFavoriteWorkouts(userId: Int): Future[Seq[WorkoutsRow]] = {
+    def getFavoriteWorkouts(username: String): Future[Seq[WorkoutsRow]] = {
     val action = for {
-      userOption <- Users.filter(_.userId === userId).result.headOption
+      userOption <- Users.filter(_.username === username).result.headOption
       workouts <- userOption match {
         case Some(user) => user.favorites match {
           case Some(favoritesString) =>
@@ -103,12 +112,5 @@ def getUsers(): Future[Seq[UsersRow]] = {
   private def parseFavorites(favoritesString: String): List[Int] = {
     favoritesString.trim.stripPrefix("{").stripSuffix("}").split(",").toList.flatMap(s => Try(s.toInt).toOption)
   }
+
 }
-
-
-
-
-
-
-
-
