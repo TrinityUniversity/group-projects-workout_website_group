@@ -41,6 +41,11 @@
                 @for((url, i) <- workoutUrls.zipWithIndex) {
                     <a class="button3" href="@url">@workoutEmojis(i)</a>
                     <h3>@workoutNames(i)</h3>
+                    <form method="post" action="@routes.WorkoutController.addFavorite">
+                        @helper.CSRF.formField
+                        <input type="hidden" name="url" value="@url"></input>
+                        <input type="submit" value="Favorite ❤️"></input>
+                    </form>
                     <br>
                 }
             }
